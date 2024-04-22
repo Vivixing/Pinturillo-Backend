@@ -10,7 +10,7 @@ export class PalabraRepository{
     }
 
 
-    async findById(idPalabra: string) {
+    async findByIdPalabra(idPalabra: string) {
         return this.repository.findOneBy({ idPalabra });
     }
     
