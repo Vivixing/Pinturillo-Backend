@@ -4,6 +4,7 @@
 
 -- DROP TABLE public.songs;
 
+/*
 CREATE TABLE public.songs (
 	id uuid NOT NULL,
 	title varchar(255) NOT NULL,
@@ -14,6 +15,7 @@ CREATE TABLE public.songs (
 	duration interval NULL,
 	CONSTRAINT songs_pkey PRIMARY KEY (id)
 );
+*/
 
 CREATE TABLE public.Categoria (
 	idCategoria uuid NOT NULL,

@@ -18,11 +18,21 @@ export class CategoriaService {
     }
 
     async guardarCategoria(categoria:Categoria){
-        const nombreExistente = await this.categoriaRepository.findByNombre(categoria.nombre)
+        if(this.validaciones(categoria)){
+            return this.categoriaRepository.save(categoria)
+        }
+    }
+
+    async validaciones(categoria:Categoria){
+        const nombreExistente =  await this.categoriaRepository.findByNombre(categoria.nombre)
         if(nombreExistente){
             throw new Error("Ya existe una categoría con ese nombre")
         }
-        return this.categoriaRepository.save(categoria)
+        const regex = /^[a-zA-Z\sÁÉÍÓÚáéíóú]+$/
+        if(!regex.test(categoria.nombre)){
+            throw new Error("El nombre no puede contener números ni carácteres especiales")
+        }
+        return true;
     }
 
     async actualizarCategoria(categoria:Categoria){
@@ -30,13 +40,10 @@ export class CategoriaService {
         if(!categoriaExistente){
             throw new Error("Ninguna categoría corresponde a ese ID")
         }
-        const nombreExistente =  await this.categoriaRepository.findByNombre(categoria.nombre)
-        if(nombreExistente){
-            throw new Error("Ya existe una categoría con ese nombre")
+        if(this.validaciones(categoria)){
+            return this.categoriaRepository.save(categoria)
         }
-        return this.categoriaRepository.save(categoria)
     }
-
     async eliminarCategoria(idCategoria:string){
         const categoriaExistente = await this.categoriaRepository.findByIdCategoria(idCategoria)
         if(!categoriaExistente){

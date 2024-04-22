@@ -1,8 +1,6 @@
 import "reflect-metadata";
 import { DataSource } from "typeorm";
-
 import * as dotenv from "dotenv";
-import { Song } from "./entities/Song.entity";
 import { Categoria } from "./entities/Categoria.entity";
 
 dotenv.config();
@@ -19,7 +17,7 @@ export const AppDataSource = new DataSource({
   synchronize: true,
 //logging logs sql command on the treminal
   logging:  true,
-  entities: [Song, Categoria],
+  entities: [Categoria],
   migrations: [__dirname + "/migration/*.ts"],
   subscribers: [],
 });

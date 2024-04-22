@@ -1,6 +1,4 @@
-
 import * as express from "express";
-import { SongController } from "../controllers/song.controller";
 import { CategoriaController } from "../controllers/Categoria.controller";
 
 const Router = express.Router();
@@ -9,30 +7,31 @@ const categoriaController = new CategoriaController();
 Router.get(
     "/categoria/:nombre",
     categoriaController.getByNombre
-  );
+);
 
-  Router.get(
+Router.get(
     "/categoria/:id",
     categoriaController.getByIdCategoria
-  );
+);
 
-  Router.get(
+Router.get(
     "/categorias",
     categoriaController.getAllCategoria
-  );
+);
 
-  Router.post(
+Router.post(
     "/categoria",
     categoriaController.saveCategoria
-  );
+);
 
-  Router.put(
+Router.put(
     "/categoria",
     categoriaController.updateCategoria
-  )
+)
 
-  Router.delete(
+Router.delete(
     "/categoria/:id",
     categoriaController.deleteCategoria
-  )
-  export { Router as categoriaRouter };
+)
+
+export { Router as categoriaRouter };
