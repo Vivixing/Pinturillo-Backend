@@ -24,11 +24,11 @@ export class PalabraService {
         return this.repository.save(palabra);
     }
 
-    async delete(id: string) {
-        const palabraExistente = await this.repository.findByIdPalabra(id);
+    async delete(idPalabra: string) {
+        const palabraExistente = await this.repository.findByIdPalabra(idPalabra);
         if (!palabraExistente) {
             throw new Error('No se puede encontrar la palabra a eliminar');
         }
-        return this.repository.delete(id);
+        return this.repository.delete(idPalabra);
     }
 }

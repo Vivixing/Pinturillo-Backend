@@ -55,8 +55,6 @@ export class PalabraController{
             res.status(400).json({ error: data.error.details[0].message });
         }
         try {
-            const id = uuidv4();
-            body['id']= id;
             const nuevaPalabra: Palabra = await this.palabraRepository.save(body);
             return res.status(200).json(nuevaPalabra);
         } catch (error) {

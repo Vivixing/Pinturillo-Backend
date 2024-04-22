@@ -9,7 +9,6 @@ export class PalabraRepository{
         return this.repository.findOneBy({ texto });
     }
 
-
     async findByIdPalabra(idPalabra: string) {
         return this.repository.findOneBy({ idPalabra });
     }
@@ -22,7 +21,7 @@ export class PalabraRepository{
         return this.repository.save(palabra);
     }
    
-    async delete (id: string){
-        return this.repository.delete(id);
+    async delete (idPalabra: string){
+        return this.repository.delete(idPalabra);
     }
 }
