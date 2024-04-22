@@ -13,13 +13,11 @@ const { PORT = 3000 } = process.env;
 var express = require('express');
 var app = express();
 const wsInstance = require('express-ws')(app);
-const websocketRouter = require('../src/routes/socket.routes')(wsInstance);
 app.use(cors());
 app.use(express.json());
 app.use(errorHandler);
 app.use("/api", palabraRouter);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-app.use('/ws', websocketRouter);
 AppDataSource.initialize()
   .then(async () => {
     app.listen(3000, () => {
