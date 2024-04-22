@@ -1,36 +1,35 @@
-
 import * as express from "express";
-import { SongController } from "../controllers/song.controller";
+import { PalabraController } from "../controllers/palabra.controller";
 
 const Router = express.Router();
-const songController = new SongController();
+const palabraController = new PalabraController();
 Router.get(
-    "/song",
-    songController.getByTitle
+    "/palabra",
+    palabraController.getByPalabra
   );
 
   Router.get(
-    "/song/:id",
-    songController.getById
+    "/palabra/:id",
+    palabraController.getByIdPalabra
   );
 
   Router.get(
-    "/songs",
-    songController.getAll
+    "/palabras",
+    palabraController.getAllPalabras
   );
 
   Router.post(
-    "/song",
-    songController.save
+    "/palabra",
+    palabraController.savePalabra
   );
 
   Router.put(
-    "/song",
-    songController.update
+    "/palabra",
+    palabraController.updatePalabra
   )
 
   Router.delete(
-    "/song/:id",
-    songController.delete
+    "/palabra/:id",
+    palabraController.deletePalabra
   )
-  export { Router as songRouter };
+  export { Router as palabraRouter };
