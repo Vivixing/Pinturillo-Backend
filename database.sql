@@ -14,3 +14,9 @@ CREATE TABLE public.songs (
 	duration interval NULL,
 	CONSTRAINT songs_pkey PRIMARY KEY (id)
 );
+
+CREATE TABLE public.Categoria (
+	idCategoria uuid NOT NULL,
+	nombre varchar(255) NOT NULL,
+	CONSTRAINT Categoria_pkey PRIMARY KEY (idCategoria)
+);
