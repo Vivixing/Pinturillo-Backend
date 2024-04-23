@@ -19,6 +19,7 @@ export class CategoriaService {
 
     async guardarCategoria(categoria: Categoria) {
         try {
+            categoria.nombre = categoria.nombre.replace(/\s+/g, ' ')
             await this.validaciones(categoria);
             return this.categoriaRepository.save(categoria);
         } catch (error) {
@@ -40,6 +41,7 @@ export class CategoriaService {
 
     async actualizarCategoria(categoria: Categoria) {
         try {
+            categoria.nombre = categoria.nombre.replace(/\s+/g, ' ')
             const categoriaExistente = await this.categoriaRepository.findByIdCategoria(categoria.idCategoria);
             if (!categoriaExistente) {
                 throw new Error("Ninguna categoría corresponde a ese ID");
