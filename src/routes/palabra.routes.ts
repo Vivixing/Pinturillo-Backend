@@ -4,7 +4,7 @@ import { PalabraController } from "../controllers/palabra.controller";
 const Router = express.Router();
 const palabraController = new PalabraController();
 Router.get(
-    "/palabra",
+    "/palabra/:texto",
     palabraController.getByPalabra
   );
 

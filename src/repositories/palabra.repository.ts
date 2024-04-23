@@ -1,3 +1,4 @@
+import { ILike } from "typeorm";
 import { AppDataSource } from "../data-source";
 import { Palabra } from "../entities/Palabra.entity";
 
@@ -6,15 +7,15 @@ export class PalabraRepository{
 
    
     async findByPalabra(texto: string) {
-        return this.repository.findOneBy({ texto });
+        return this.repository.findOneBy({ texto: ILike(`%${texto}%`)});
     }
 
     async findByIdPalabra(idPalabra: string) {
         return this.repository.findOneBy({ idPalabra });
     }
     
-    async getAll() {
-        return this.repository.find();
+    async getAll(texto?: string) {
+        return this.repository.find({where : texto ? {texto} : {}});
     }
 
     async save(palabra: Palabra){

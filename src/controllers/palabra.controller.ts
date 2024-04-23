@@ -1,21 +1,16 @@
 import { Request, Response } from "express";
 import { PalabraResponse } from "../dto/palabra.dto";
-import { PalabraRepository } from "../repositories/palabra.repository";
 import { Palabra } from "../entities/Palabra.entity";
 import { palabraCreationSchema,palabraUpdateSchema } from "../schemas/palabra.schema.js";
-
-import { v4 as uuidv4 } from 'uuid';
-
-
+import { PalabraService } from "../services/song.service";
 export class PalabraController{
     
-    private palabraRepository: PalabraRepository = new PalabraRepository();
+    private palabraService: PalabraService = new PalabraService();
 
-    public getByPalabra = async (req: Request, res: Response) => {
+    public getByPalabra = async (req:Request, res: Response) => {
+        const {texto} = req.params;
         try {
-            const texto = <string>req.query.texto;
-            console.log(texto);
-            const palabra: PalabraResponse = await this.palabraRepository.findByPalabra(texto);
+            const palabra: PalabraResponse = await this.palabraService.findByPalabra(String(texto));
             return res.status(200).json({
                 palabra,
               });
@@ -28,7 +23,7 @@ export class PalabraController{
         const {id} = req.params;
         try {
             console.log('Promise unresolved');
-            const palabra: Palabra = await this.palabraRepository.findByIdPalabra(id);
+            const palabra: Palabra = await this.palabraService.findByIdPalabra(id);
             if(palabra === null){
                 res.status(404).json({ error: 'Palabra no existe'});
             }
@@ -39,12 +34,13 @@ export class PalabraController{
         }
     }
 
-    public getAllPalabras = async (res: Response) => {
+    public getAllPalabras = async (req: Request, res: Response) => {
+        const texto = <string> req.query.texto;
         try {
-            const palabras: Palabra[] = await this.palabraRepository.getAll();
+            const palabras: Palabra[] = await this.palabraService.getAll(texto);
             return res.status(200).json(palabras);
         } catch (error) {
-             res.status(400).json({ error: error.message });
+            res.status(400).json({ error: error.message });
        }
     }
 
@@ -55,7 +51,7 @@ export class PalabraController{
             res.status(400).json({ error: data.error.details[0].message });
         }
         try {
-            const nuevaPalabra: Palabra = await this.palabraRepository.save(body);
+            const nuevaPalabra: Palabra = await this.palabraService.save(body);
             return res.status(200).json(nuevaPalabra);
         } catch (error) {
             res.status(400).json({ error: error.message });
@@ -69,12 +65,11 @@ export class PalabraController{
             res.status(400).json({ error: data.error.details[0].message });
         }
         try {
-            const id = body.id;
-            let palabraToUpdate: Palabra = await this.palabraRepository.findByIdPalabra(id);
+            let palabraToUpdate: Palabra 
             palabraToUpdate = {
                 ...body
             } 
-            const result: Palabra = await this.palabraRepository.save(palabraToUpdate);
+            const result: Palabra = await this.palabraService.update(palabraToUpdate);
             return res.status(200).json(result);
         } catch (error) {
             res.status(400).json({ error: error.message });
@@ -84,7 +79,7 @@ export class PalabraController{
     public deletePalabra = async (req: Request, res: Response) => {
         const {id} = req.params;
         try {
-            await this.palabraRepository.delete(id);
+            await this.palabraService.delete(id);
             res.status(200).json({message: 'Palabra eliminada correctamente'});
             
         } catch (error) {

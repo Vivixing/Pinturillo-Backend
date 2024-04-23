@@ -5,6 +5,10 @@ export class PalabraService {
     private repository = new PalabraRepository();
 
     async findByPalabra(texto: string) {
+        const palabra = await this.repository.findByPalabra(texto);
+        if(!palabra){
+            throw new Error('No existe ninguna palabra que coincida con el parámetro proporcionado.');
+        }
         return this.repository.findByPalabra(texto);
     }
 
@@ -12,8 +16,8 @@ export class PalabraService {
         return this.repository.findByIdPalabra(idPalabra);
     }
 
-    async getAll() {
-        return this.repository.getAll();
+    async getAll(texto?:string) {
+        return this.repository.getAll(texto);
     }
 
     async save(palabra: Palabra) {
@@ -24,10 +28,18 @@ export class PalabraService {
         return this.repository.save(palabra);
     }
 
+    async update(palabra: Palabra) {
+        const palabraExistente = await this.repository.findByIdPalabra(palabra.idPalabra);
+        if (!palabraExistente) {
+            throw new Error('La palabra no existe, no se puede actualizar');
+        }
+        return this.repository.save(palabra);
+    }
+
     async delete(idPalabra: string) {
         const palabraExistente = await this.repository.findByIdPalabra(idPalabra);
         if (!palabraExistente) {
-            throw new Error('No se puede encontrar la palabra a eliminar');
+            throw new Error('La palabra no existe, no se puede eliminar');
         }
         return this.repository.delete(idPalabra);
     }
