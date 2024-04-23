@@ -20,7 +20,7 @@ export class CategoriaRepository {
         return this.repository.save(categoria);
     }
 
-    async delete(idCategoria) {
+    async delete(idCategoria: string) {
         return this.repository.delete(idCategoria);
     }
 }
