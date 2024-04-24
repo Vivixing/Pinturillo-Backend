@@ -1,4 +1,3 @@
-import { Categoria } from "../entities/Categoria.entity";
 import { AppDataSource } from "../data-source";
 import { ILike } from "typeorm";
 import { SalaDeJuego } from "../entities/SalaDeJuego.entity";

@@ -1,8 +1,4 @@
 import { Request, Response } from "express";
-import { CategoriaService } from "../services/Categoria.service";
-import { CategoriaResponse } from "../dto/Categoria.dto";
-import { Categoria } from "../entities/Categoria.entity";
-import { CategoriaCreationSchema, CategoriaUpdateSchema } from "../schemas/Categoria.schema.js"
 import { SalaDeJuego } from "../entities/SalaDeJuego.entity";
 import { SalaDeJuegoService } from "../services/SalaDeJuego.service";
 import { SalaDeJuegoResponse } from "../dto/SalaDeJuego.dto";
@@ -57,8 +53,8 @@ export class SalaDeJuegoController {
 
     public getAllSalaDeJuego = async (req: Request, res: Response) => {
         try {
-            const salaDeJuego: SalaDeJuego[] = await this.salaDeJuegoService.encontrarTodos();
-            return res.status(200).json(salaDeJuego);
+            const salasDeJuego: SalaDeJuego[] = await this.salaDeJuegoService.encontrarTodos();
+            return res.status(200).json(salasDeJuego);
         } catch (error) {
             res.status(400).json({ error: error.message });
         }

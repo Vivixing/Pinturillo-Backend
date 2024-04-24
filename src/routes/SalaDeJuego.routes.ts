@@ -10,7 +10,7 @@ Router.get(
 );
 
 Router.get(
-    "/salaDeJuego/:idCategoria",
+    "/salaDeJuego/categoria/:idCategoria",
     salaDeJuegoController.getByIdCategoria
 );
 
@@ -20,7 +20,7 @@ Router.get(
 );
 
 Router.get(
-    "/salaDeJuegos",
+    "/salasDeJuego",
     salaDeJuegoController.getAllSalaDeJuego
 );
 

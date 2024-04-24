@@ -1,4 +1,3 @@
-import { Categoria } from "../entities/Categoria.entity";
 import { SalaDeJuego } from "../entities/SalaDeJuego.entity";
 import { CategoriaRepository } from "../repositories/Categoria.repository";
 import { SalaDeJuegoRepository } from "../repositories/SalaDeJuego.repository";
@@ -36,8 +35,8 @@ export class SalaDeJuegoService {
     }
 
     async validaciones(salaDeJuego: SalaDeJuego) {
-        const nombreExistente = await this.categoriaRepository.findByIdCategoria(salaDeJuego.idCategoria)
-        if (!nombreExistente) {
+        const categoriaExistente = await this.categoriaRepository.findByIdCategoria(salaDeJuego.idCategoria)
+        if (!categoriaExistente) {
             throw new Error("No existe una categoría con ese id")
         }
         return true;
