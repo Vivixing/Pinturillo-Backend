@@ -2,6 +2,7 @@ import "reflect-metadata";
 import { DataSource } from "typeorm";
 import * as dotenv from "dotenv";
 import { Categoria } from "./entities/Categoria.entity";
+import { SalaDeJuego } from "./entities/SalaDeJuego.entity";
 
 dotenv.config();
 
@@ -17,7 +18,7 @@ export const AppDataSource = new DataSource({
   synchronize: true,
 //logging logs sql command on the treminal
   logging:  true,
-  entities: [Categoria],
+  entities: [Categoria, SalaDeJuego],
   migrations: [__dirname + "/migration/*.ts"],
   subscribers: [],
 });
