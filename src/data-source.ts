@@ -6,7 +6,7 @@ import { SalaDeJuego } from "./entities/SalaDeJuego.entity";
 
 dotenv.config();
 
-const {DB_PORT, DB_USERNAME, DB_PASSWORD, DB_DATABASE, NODE_ENV } =
+const {DB_PORT, DB_USERNAME, DB_PASSWORD, DB_DATABASE } =
   process.env;
   
 export const AppDataSource = new DataSource({
