@@ -6,20 +6,19 @@ import { errorHandler } from "./middleware/errorHandler";
 import * as swaggerUi from 'swagger-ui-express';
 import * as swaggerSpec from './swagger'
 import { categoriaRouter } from "./routes/Categoria.routes";
+import { SalaDeJuegoRouter } from "./routes/SalaDeJuego.routes";
 const cors = require('cors');
 dotenv.config();
 
 const { PORT = 3000 } = process.env;
-var express = require('express');
+var express = require('express');1
 var app = express();
 const wsInstance = require('express-ws')(app);
-const websocketRouter = require('../src/routes/socket.routes')(wsInstance);
 app.use(cors());
 app.use(express.json());
 app.use(errorHandler);
-app.use("/api", categoriaRouter);
+app.use("/api", categoriaRouter, SalaDeJuegoRouter);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-app.use('/ws', websocketRouter);
 AppDataSource.initialize()
   .then(async () => {
     app.listen(3000, () => {

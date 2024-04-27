@@ -3,7 +3,9 @@ import {
   PrimaryGeneratedColumn,
   Column,
   BaseEntity,
+  OneToMany,
 } from "typeorm";
+import { SalaDeJuego } from "./SalaDeJuego.entity";
 
 @Entity({ name: "Categoria" })
 export class Categoria extends BaseEntity {
@@ -12,4 +14,7 @@ export class Categoria extends BaseEntity {
 
   @Column({ nullable: false })
   nombre: string;
+
+  @OneToMany(() => SalaDeJuego, (salaDeJuego) => salaDeJuego.idCategoria) // note: we will create author property in the Photo class below
+  salasDeJuego: []
 }
