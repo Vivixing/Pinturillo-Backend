@@ -23,6 +23,11 @@ CREATE TABLE public.Categoria (
 	CONSTRAINT Categoria_pkey PRIMARY KEY (idCategoria)
 );
 
+CREATE TABLE public.Palabra (
+	idPalabra uuid NOT NULL,
+	texto varchar(45) NOT NULL,
+	CONSTRAINT Palabra_pkey PRIMARY KEY (idPalabra)
+);
 CREATE TABLE public.SalaDeJuego (S
 	idSala int NOT NULL,
 	nombre varchar(255),
