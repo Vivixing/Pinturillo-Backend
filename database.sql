@@ -37,3 +37,12 @@ CREATE TABLE public.SalaDeJuego (S
 	CONSTRAINT SalaDeJuego_pkey PRIMARY KEY (idSala)
 	FOREIGN KEY (idCategoria) REFERENCES Categoria(idCategoria)
 );
+
+CREATE TABLE public.PalabraPorCategoria (S
+	idPalabra uuid NOT NULL,
+	idCategoria uuid NOT NULL,
+
+	CONSTRAINT PalabraPorCategoria_pkey PRIMARY KEY (idPalabra, idCategoria)
+	FOREIGN KEY (idPalabra) REFERENCES Palabra(idPalabra)
+	FOREIGN KEY (idCategoria) REFERENCES Categoria(idCategoria)
+);
