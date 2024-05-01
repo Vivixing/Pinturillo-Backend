@@ -5,17 +5,16 @@ import { SalaDeJuegoRepository } from "../repositories/SalaDeJuego.repository";
 export class SalaDeJuegoService {
 
     private salaDeJuegoRepository: SalaDeJuegoRepository = new SalaDeJuegoRepository();
-    private categoriaRepository: CategoriaRepository = new CategoriaRepository();
 
     encontrarTodos() {
         return this.salaDeJuegoRepository.getAll()
     }
 
-    encontrarPorNombre(nombre: string) {
+    encontrarPorNombre(nombre: String) {
         return this.salaDeJuegoRepository.findByNombre(nombre)
     }
 
-    encontrarIdCategoria(idCategoria: string) {
+    encontrarIdCategoria(idCategoria: String) {
         return this.salaDeJuegoRepository.findByIdCategoria(idCategoria)
     }
 
@@ -35,7 +34,7 @@ export class SalaDeJuegoService {
     }
 
     async validaciones(salaDeJuego: SalaDeJuego) {
-        const categoriaExistente = await this.categoriaRepository.findByIdCategoria(salaDeJuego.idCategoria)
+        const categoriaExistente = await this.salaDeJuegoRepository.findByIdCategoria(salaDeJuego.idCategoria)
         if (!categoriaExistente) {
             throw new Error("No existe una categoría con ese id")
         }

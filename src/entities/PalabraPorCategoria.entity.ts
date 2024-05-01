@@ -7,22 +7,26 @@ import {
   JoinColumn,
 } from "typeorm";
 import { Categoria } from "./Categoria.entity";
+import { Palabra } from "./Palabra.entity";
 
-@Entity({ name: "SalaDeJuego" })
-export class SalaDeJuego extends BaseEntity {
+@Entity({ name: "PalabraPorCategoria" })
+export class PalabraPorCategoria extends BaseEntity {
   @PrimaryGeneratedColumn()
-  idSalaDeJuego: number;
+  idPalabraPorCategoria: number;
 
-  @Column({ nullable: false })
-  nombre: String;
-  
+  @Column({name: 'idPalabra', nullable: false})
+  idPalabra: String;
+
   @Column({name: 'idCategoria', nullable: false})
   idCategoria: String;
+  
+
+  @ManyToOne(() => Palabra, {nullable: false})
+  @JoinColumn({ name: "idPalabra", referencedColumnName: 'id'})
+  palabras?: Palabra[];
+  
 
   @ManyToOne(() => Categoria, (categoria) => categoria)
   @JoinColumn({ name: "idCategoria", referencedColumnName: 'id' })
   categorias?: Categoria[];
-
-  @Column({ nullable: false })
-  estado: String;
-}
+} 
