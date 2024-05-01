@@ -1,21 +1,20 @@
 import { AppDataSource } from "../data-source";
 import { PalabraPorCategoria } from "../entities/PalabraPorCategoria.entity";
-import { Categoria } from "../entities/Categoria.entity";
-import { Palabra } from "../entities/Palabra.entity";
+
 
 export class PalabraPorCategoriaRepository {
     private repository = AppDataSource.getRepository(PalabraPorCategoria);
 
-    async findByIdCategoria(idCategoria: Categoria) {
+    async findByIdPalabraPorCategoria(idPalabraPorCategoria: number) {
+        return this.repository.findOneBy({idPalabraPorCategoria});
+    }
+
+    async findByIdCategoria(idCategoria: String) {
         return this.repository.findOneBy({ idCategoria });
     }
 
-    async findByIdCategoriaAndIdPalabra(idCategoria: Categoria, idPalabra: Palabra) {
-        return this.repository.findOneBy({ idCategoria, idPalabra });
-    }
-
-    async findByIdPalabra(idPalabra: Palabra) {
-        return this.repository.findOneBy({ idPalabra });
+    async findByIdPalabra(idPalabra: String) {
+        return this.repository.findOneBy({idPalabra});
     }
 
     async getAll() {
@@ -26,7 +25,7 @@ export class PalabraPorCategoriaRepository {
         return this.repository.save(palabraPorCategoria);
     }
 
-    async delete(idPalabra: Palabra, idCategoria: Categoria ) {
-        return this.repository.delete({idPalabra, idCategoria});
+    async delete(idPalabraPorCategoria: number) {
+        return this.repository.delete(idPalabraPorCategoria);
     }
 }

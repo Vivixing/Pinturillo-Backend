@@ -14,13 +14,15 @@ export class SalaDeJuego extends BaseEntity {
   idSalaDeJuego: number;
 
   @Column({ nullable: false })
-  nombre: string;
+  nombre: String;
   
+  @Column({name: 'idCategoria', nullable: false})
+  idCategoria: String;
 
-  @ManyToOne(() => Categoria, (categoria) => categoria.salasDeJuego)
-  @JoinColumn({ name: "idCategoria" })
-  idCategoria: string;
+  @ManyToOne(() => Categoria, (categoria) => categoria)
+  @JoinColumn({ name: "idCategoria", referencedColumnName: 'id' })
+  categorias?: Categoria[];
 
   @Column({ nullable: false })
-  estado: string;
+  estado: String;
 }

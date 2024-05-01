@@ -1,25 +1,23 @@
-import { Categoria } from "../entities/Categoria.entity";
-import { Palabra } from "../entities/Palabra.entity";
 import { PalabraPorCategoria } from "../entities/PalabraPorCategoria.entity";
-import { CategoriaRepository } from "../repositories/Categoria.repository";
 import { PalabraPorCategoriaRepository } from "../repositories/PalabraPorCategoria.repository";
-import { PalabraRepository } from "../repositories/palabra.repository";
 
 export class PalabraPorCategoriaService {
 
     private palabraPorCategoriaRepository: PalabraPorCategoriaRepository = new PalabraPorCategoriaRepository();
-    private categoriaRepository: CategoriaRepository = new CategoriaRepository();
-    private palabraRepository: PalabraRepository = new PalabraRepository();
 
     encontrarTodos() {
         return this.palabraPorCategoriaRepository.getAll()
     }
 
-    encontrarIdCategoria(idCategoria: Categoria) {
+    encontrarIdPalabraPorCategoria(idPalabraPorCategoria: number) {
+        return this.palabraPorCategoriaRepository.findByIdPalabraPorCategoria(idPalabraPorCategoria)
+    }
+
+    encontrarIdCategoria(idCategoria: String) {
         return this.palabraPorCategoriaRepository.findByIdCategoria(idCategoria)
     }
     
-    encontrarIdPalabra(idPalabra: Palabra) {
+    encontrarIdPalabra(idPalabra: String) {
         return this.palabraPorCategoriaRepository.findByIdPalabra(idPalabra)
     }
 
@@ -33,23 +31,24 @@ export class PalabraPorCategoriaService {
     }
 
     async validaciones(palabraPorCategoria: PalabraPorCategoria) {
-        const categoriaExistente = await this.categoriaRepository.findByIdCategoria(palabraPorCategoria.idCategoria.idCategoria)
-        const palabraExistente = await this.palabraRepository.findByIdPalabra(palabraPorCategoria.idPalabra.idPalabra)
-        if (!categoriaExistente ) {
+        const categoriaExistente = await this.palabraPorCategoriaRepository.findByIdCategoria(palabraPorCategoria.idCategoria)
+        const palabraExistente = await this.palabraPorCategoriaRepository.findByIdPalabra(palabraPorCategoria.idPalabra)
+
+        if (!categoriaExistente) {
             throw new Error("No existe una categoría con ese id")
         }
-        if (!palabraExistente ) {
+        if (!palabraExistente){
             throw new Error("No existe una palabra con ese id")
         }
         return true;
     }
 
-    async eliminarPalabraPorCategoria(idCategoria: Categoria, idPalabra: Palabra) {
-        const palabraAndCategoriaExistente = await this.palabraPorCategoriaRepository.findByIdCategoriaAndIdPalabra(idCategoria, idPalabra)
+    async eliminarPalabraPorCategoria(idPalabraPorCategoria: number) {
+        const palabraCategoriaExistente = await this.palabraPorCategoriaRepository.findByIdPalabraPorCategoria(idPalabraPorCategoria)
         
-        if (!palabraAndCategoriaExistente) {
+        if (!palabraCategoriaExistente) {
             throw new Error("Ninguna palabraPorCategoria corresponde a ese ID")
         }
-        return this.palabraPorCategoriaRepository.delete(idPalabra, idCategoria)
+        return this.palabraPorCategoriaRepository.delete(idPalabraPorCategoria)
     }
 }

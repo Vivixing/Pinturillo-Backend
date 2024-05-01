@@ -8,8 +8,14 @@ const PalabraPorCategoriaCreationSchema = Joi.object({
 });
 
 const PalabraPorCategoriaUpdateSchema = Joi.object({
-    idPalabras: Joi.string(),
-    idCategoria: Joi.string(),
+    idPalabraPorCategoria: Joi.number()
+        .integer()
+        .positive()
+        .required(),
+    idPalabras: Joi.String()
+        .required(),
+    idCategoria: Joi.String()
+        .required()
 })
 
 module.exports = {
