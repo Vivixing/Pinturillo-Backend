@@ -5,15 +5,15 @@ import { SalaDeJuego } from "../entities/SalaDeJuego.entity";
 export class SalaDeJuegoRepository {
     private repository = AppDataSource.getRepository(SalaDeJuego);
 
-    async findByNombre(nombre: String) {
+    async findByNombre(nombre: string) {
         return this.repository.findOneBy({ nombre: ILike(`%${nombre}%`) });
     }
 
-    async findByEstado(estado: String) {
+    async findByEstado(estado: string) {
         return this.repository.findOneBy({ estado: ILike(`%${estado}%`) });
     }
 
-    async findByIdCategoria(idCategoria: String) {
+    async findByIdCategoria(idCategoria: string) {
         return this.repository.findOneBy({ idCategoria: ILike(`%${idCategoria}%`) });
     }
 

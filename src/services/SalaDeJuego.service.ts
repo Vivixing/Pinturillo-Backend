@@ -10,11 +10,11 @@ export class SalaDeJuegoService {
         return this.salaDeJuegoRepository.getAll()
     }
 
-    encontrarPorNombre(nombre: String) {
+    encontrarPorNombre(nombre: string) {
         return this.salaDeJuegoRepository.findByNombre(nombre)
     }
 
-    encontrarIdCategoria(idCategoria: String) {
+    encontrarIdCategoria(idCategoria: string) {
         return this.salaDeJuegoRepository.findByIdCategoria(idCategoria)
     }
 

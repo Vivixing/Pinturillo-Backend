@@ -1,6 +1,6 @@
 export class SalaDeJuegoResponse{
     idSalaDeJuego: number;
-    nombre: String;
-    idCategoria: String;
-    estado: String;
+    nombre: string;
+    idCategoria: string;
+    estado: string;
 }
