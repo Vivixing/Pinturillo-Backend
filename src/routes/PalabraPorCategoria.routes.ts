@@ -32,4 +32,4 @@ Router.delete(
     palabraPorCategoriaController.deletePalabraPorCategoria
 )
 
-export { Router as SalaDeJuegoRouter };
+export { Router as PalabraPorCategoriaRouter };
