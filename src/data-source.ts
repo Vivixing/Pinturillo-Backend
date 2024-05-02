@@ -4,6 +4,7 @@ import * as dotenv from "dotenv";
 import { Categoria } from "./entities/Categoria.entity";
 import { SalaDeJuego } from "./entities/SalaDeJuego.entity";
 import { Palabra } from "./entities/Palabra.entity";
+import { PalabraPorCategoria } from "./entities/PalabraPorCategoria.entity";
 
 dotenv.config();
 
@@ -18,8 +19,8 @@ export const AppDataSource = new DataSource({
   database: DB_DATABASE,
   synchronize: false,
 //logging logs sql command on the treminal
-  logging:  false,
-  entities: [Categoria, Palabra, SalaDeJuego],
+  logging:  true,
+  entities: [Categoria, Palabra, SalaDeJuego, PalabraPorCategoria],
   migrations: [__dirname + "/migration/*.ts"],
   subscribers: [],
 });
