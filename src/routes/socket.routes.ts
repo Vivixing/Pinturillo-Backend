@@ -1,5 +1,5 @@
 import { SalaDeJuego } from "../entities/SalaDeJuego.entity";
-import { SalaDeJuegoService } from "../services/SalaDeJuego.service";
+
 
 const express = require('express');
 const router = express.Router();
@@ -7,7 +7,6 @@ const { SalaDeJuegoRepository } = require('../repositories/SalaDeJuego.repositor
 
 module.exports = (expressWs) => {
     const salaDeJuegoRepository = new SalaDeJuegoRepository();
-    const salaDeJuegoService = new SalaDeJuegoService();
     expressWs.applyTo(router);
 
     const rooms = {};
