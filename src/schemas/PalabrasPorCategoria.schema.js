@@ -12,13 +12,13 @@ const PalabraPorCategoriaUpdateSchema = Joi.object({
         .integer()
         .positive()
         .required(),
-    idPalabras: Joi.String()
+    idPalabras: Joi.string()
         .required(),
-    idCategoria: Joi.String()
+    idCategoria: Joi.string()
         .required()
 })
 
 module.exports = {
     PalabraPorCategoriaCreationSchema,
     PalabraPorCategoriaUpdateSchema
-};s
+};

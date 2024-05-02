@@ -8,18 +8,21 @@ import * as swaggerSpec from './swagger'
 import { categoriaRouter } from "./routes/Categoria.routes";
 import { SalaDeJuegoRouter } from "./routes/SalaDeJuego.routes";
 import { palabraRouter } from "./routes/palabra.routes";
+import { PalabraPorCategoriaRouter } from "./routes/PalabraPorCategoria.routes";
 const cors = require('cors');
 dotenv.config();
 
 const { PORT = 3000 } = process.env;
-var express = require('express');1
+var express = require('express');
 var app = express();
 const wsInstance = require('express-ws')(app);
+const websocketRouter = require('../src/routes/socket.routes')(wsInstance);
 app.use(cors());
 app.use(express.json());
 app.use(errorHandler);
-app.use("/api", categoriaRouter, palabraRouter, SalaDeJuegoRouter);
+app.use("/api", categoriaRouter, palabraRouter, SalaDeJuegoRouter, PalabraPorCategoriaRouter);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.use('/ws', websocketRouter);
 AppDataSource.initialize()
   .then(async () => {
     app.listen(3000, () => {

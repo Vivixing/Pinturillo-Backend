@@ -15,18 +15,18 @@ export class PalabraPorCategoria extends BaseEntity {
   idPalabraPorCategoria: number;
 
   @Column({name: 'idPalabra', nullable: false})
-  idPalabra: String;
+  idPalabra: string;
 
   @Column({name: 'idCategoria', nullable: false})
-  idCategoria: String;
+  idCategoria: string;
   
 
   @ManyToOne(() => Palabra, {nullable: false})
-  @JoinColumn({ name: "idPalabra", referencedColumnName: 'id'})
+  @JoinColumn({ name: "idPalabra", referencedColumnName: 'idPalabra'})
   palabras?: Palabra[];
   
 
   @ManyToOne(() => Categoria, (categoria) => categoria)
-  @JoinColumn({ name: "idCategoria", referencedColumnName: 'id' })
+  @JoinColumn({ name: "idCategoria", referencedColumnName: 'idCategoria' })
   categorias?: Categoria[];
 } 

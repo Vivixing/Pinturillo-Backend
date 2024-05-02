@@ -13,11 +13,11 @@ export class PalabraPorCategoriaService {
         return this.palabraPorCategoriaRepository.findByIdPalabraPorCategoria(idPalabraPorCategoria)
     }
 
-    encontrarIdCategoria(idCategoria: String) {
+    encontrarIdCategoria(idCategoria: string) {
         return this.palabraPorCategoriaRepository.findByIdCategoria(idCategoria)
     }
     
-    encontrarIdPalabra(idPalabra: String) {
+    encontrarIdPalabra(idPalabra: string) {
         return this.palabraPorCategoriaRepository.findByIdPalabra(idPalabra)
     }
 

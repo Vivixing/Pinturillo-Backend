@@ -1,58 +1,62 @@
-import { CategoriaRepository } from "../repositories/Categoria.repository";
+import { SalaDeJuego } from "../entities/SalaDeJuego.entity";
+
 
 const express = require('express');
 const router = express.Router();
-module.exports = (expressWs) => {
+const { SalaDeJuegoRepository } = require('../repositories/SalaDeJuego.repository');
 
-    const categoriaRepository = new CategoriaRepository();
+module.exports = (expressWs) => {
+    const salaDeJuegoRepository = new SalaDeJuegoRepository();
     expressWs.applyTo(router);
 
     const rooms = {};
 
-    router.ws('/room/:roomName', (ws, req) => {
-        const roomName = req.params.roomName;
+    router.ws('/room/:idSalaDeJuego',async (ws, req) => {
+        const salasDeJuego: SalaDeJuego[] = await salaDeJuegoRepository.getAll();
+        console.log(salasDeJuego);
+        const idSalaDeJuego = req.params.idSalaDeJuego;
         const userName = req.headers.username;
-        if (!rooms[roomName]) {
-            rooms[roomName] = new Set();
+
+        if (await salaDeJuegoRepository.findByIdSalaDeJuego(idSalaDeJuego) === null){
+        console.log("Sala de juego no encontrada")
+        ws.close();
         }
-        rooms[roomName].add({ ws, userName });
-        //Notificar a todos que me uní
-        if (rooms[roomName]) {
-            rooms[roomName].forEach(client => {
-                if (client.ws !== ws && client.ws.readyState === ws.OPEN) {
-                    console.log(ws.OPEN);
-                    client.ws.send(`${userName} has joined`);
-                }
-            });
+        if (!rooms[idSalaDeJuego]) {
+            rooms[idSalaDeJuego] = new Set();
         }
+        rooms[idSalaDeJuego].add({ ws, userName });
+
+        // Notify all users in the room that a new user has joined
+        
+        rooms[idSalaDeJuego].forEach(client => {
+            if (client.ws !== ws && client.ws.readyState === ws.OPEN) {
+                client.ws.send(`${userName} has joined`);
+            }
+        });
+
         ws.on('message', async function (msg) {
-            const jsonMessage: { type: string, data: any } = JSON.parse(msg);
+            const jsonMessage = JSON.parse(msg);
             if (jsonMessage.type === 'SEND_MESSAGE') {
-                if (rooms[roomName]) {
-                    rooms[roomName].forEach(client => {
-                        if (client.ws !== ws && client.ws.readyState === ws.OPEN) {
-                            console.log(ws.OPEN);
-                            client.ws.send(`${userName} Says: ${jsonMessage.data}`);
-                        }
-                    });
-                }
-            } if (jsonMessage.type === 'FINISH_TURN') {
-                const songs = await categoriaRepository.getAll();
-                if (rooms[roomName]) {
-                    rooms[roomName].forEach(client => {
-                        if (client.ws !== ws && client.ws.readyState === ws.OPEN) {
-                            console.log(ws.OPEN);
-                            client.ws.send(JSON.stringify(songs));
-                        }
-                    });
-                }
+                rooms[idSalaDeJuego].forEach(client => {
+                    if (client.ws !== ws && client.ws.readyState === ws.OPEN) {
+                        client.ws.send(`${userName} Says: ${jsonMessage.data}`);
+                    }
+                });
+            } else if (jsonMessage.type === 'FINISH_TURN') {
+                const songs = await salaDeJuegoRepository.getAll();
+                rooms[idSalaDeJuego].forEach(client => {
+                    if (client.ws !== ws && client.ws.readyState === ws.OPEN) {
+                        client.ws.send(JSON.stringify(songs));
+                    }
+                });
             }
 
         });
+
         ws.on('close', function () {
-            rooms[roomName].delete(ws);
-            if (rooms[roomName].size === 0) {
-                delete rooms[roomName];
+            rooms[idSalaDeJuego].delete(ws);
+            if (rooms[idSalaDeJuego].size === 0) {
+                delete rooms[idSalaDeJuego];
             }
         });
     });
