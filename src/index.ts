@@ -12,7 +12,7 @@ const cors = require('cors');
 dotenv.config();
 
 const { PORT = 3000 } = process.env;
-var express = require('express');1
+var express = require('express');
 var app = express();
 const wsInstance = require('express-ws')(app);
 const websocketRouter = require('../src/routes/socket.routes')(wsInstance);
