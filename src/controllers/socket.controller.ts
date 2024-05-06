@@ -1,7 +1,9 @@
 import { PalabraResponse } from "../dto/palabra.dto";
+import { PalabraPorCategoria } from "../entities/PalabraPorCategoria.entity";
 import { PalabraPorCategoriaRepository } from "../repositories/PalabraPorCategoria.repository";
 import { SalaDeJuegoRepository } from "../repositories/SalaDeJuego.repository";
-import { PalabraRepository } from "../repositories/palabra.repository";
+import { PalabraService } from "../services/PalabraService.service";
+
 
 const WebSocket = require('ws');
 
@@ -10,39 +12,33 @@ export class SocketController{
     public clientWithTurn = [];
     public palabraAsignada = "";
 
-    async joinRoom(ws, idSalaDeJuego) {
+    async joinRoom(ws, username, idSalaDeJuego) {
       if (!SocketController.rooms[idSalaDeJuego]) {
         SocketController.rooms[idSalaDeJuego] = new Set();
       }
-      SocketController.rooms[idSalaDeJuego].add(ws);
+      SocketController.rooms[idSalaDeJuego].add({ws, username, puntos: 0, turno: 0});
       }
       
       leaveRoom(ws, idSalaDeJuego) {
         if (SocketController.rooms[idSalaDeJuego]) {
-            SocketController.rooms[idSalaDeJuego].delete(ws);
+          const clientToDelete = Array.from(SocketController.rooms[idSalaDeJuego]).find((client: any) => client.ws === ws);
+          SocketController.rooms[idSalaDeJuego].delete(clientToDelete);
           if (SocketController.rooms[idSalaDeJuego].size === 0) {
             delete SocketController.rooms[idSalaDeJuego];
           }
-          for (const client of this.clientWithTurn) {
-            if (client.client === ws) {
-              const indice = this.clientWithTurn.indexOf(client);
-              this.clientWithTurn = this.clientWithTurn.splice(indice, 1);
-            }
-          }
-          this.assignATurn(idSalaDeJuego);
+          this.clientWithTurn = [];
         }
       }
       
       guessWord(idSalaDeJuego, message) {
         if (SocketController.rooms[idSalaDeJuego]) {
-          for (const client of SocketController.rooms[idSalaDeJuego]) {
             if(message === this.palabraAsignada){
               return true;
             }
             return false;
         }
       }
-    }
+  
       assignATurn(idSalaDeJuego) {
         if (SocketController.rooms[idSalaDeJuego]) {
           const clients = Array.from(SocketController.rooms[idSalaDeJuego]);
@@ -57,7 +53,7 @@ export class SocketController{
         playerTurn(idSalaDeJuego, ws) {
         if (SocketController.rooms[idSalaDeJuego]) {
         for (const client of this.clientWithTurn) {
-            if (client.client === ws) {
+            if (client.client.ws === ws) {
               return client.turno;
             }
           }
@@ -72,35 +68,46 @@ export class SocketController{
           const PalabraPorCategoria = new PalabraPorCategoriaRepository();
           const palabras = await PalabraPorCategoria.findByIdCategoria(categoria);
           const randomIndex = Math.floor(Math.random() * palabras.length);
+          console.log(randomIndex);
           const randomWord = palabras[randomIndex];
           
-          const palabra = new PalabraRepository();
-          const palabraSeleccionada: PalabraResponse = await palabra.findByIdPalabra(randomWord.idPalabra);
+          
+          const palabra = new PalabraService();
+          const palabraSeleccionada: PalabraResponse = await palabra.encontrarIdPalabra(randomWord.idPalabra);
           this.palabraAsignada = palabraSeleccionada.texto;
           return this.palabraAsignada;
         }
         return null;
       }
 
-      async points(idSalaDeJuego, puesto) {
+      async points(idSalaDeJuego, puesto, ws, tiempo) {
         if (SocketController.rooms[idSalaDeJuego]) {
-          const clients = Array.from(SocketController.rooms[idSalaDeJuego]);
-            const scoreFrontPosition = (clients.length - puesto) * 10;
-            const maxTime = 90;
-            const timeScoreFactor = Math.max(0, 1 - (maxTime));
-            const scoreFrontTime = Math.floor(timeScoreFactor * 1000);
-            const totalScore = scoreFrontPosition + scoreFrontTime;
-            return totalScore;
+          console.log(tiempo)
+          for (const client of SocketController.rooms[idSalaDeJuego]) {
+            if (client.ws === ws) {
+              const scoreFrontPosition = (SocketController.rooms[idSalaDeJuego].size - puesto) * 10;
+              const maxTime = 90;
+              const timeScoreFactor = Math.max(0, 1 - ((maxTime-tiempo) / maxTime));
+              const scoreFrontTime = Math.floor(timeScoreFactor*100);
+              const totalScore = scoreFrontPosition + scoreFrontTime;
+              client.puntos += totalScore;
+              return totalScore;
+            }
         }
-        return false;
       }
+    }
     
       endTurn(idSalaDeJuego) {
         if (SocketController.rooms[idSalaDeJuego]) {
-          const finTurno = this.clientWithTurn.shift()
-          SocketController.rooms[idSalaDeJuego].delete(finTurno.ws);
-          SocketController.rooms[idSalaDeJuego].add(finTurno.ws);
-          return this.assignATurn(idSalaDeJuego);
+          for (const client of this.clientWithTurn) {
+            if(client.turno == 1){
+              client.turno = SocketController.rooms[idSalaDeJuego].size;
+            }else{
+              client.turno--;
+            }
+          }
+          console.log(this.clientWithTurn);
+          return this.clientWithTurn;
         }
       }
       endGame(roomName){
@@ -108,8 +115,8 @@ export class SocketController{
           const clients = Array.from(SocketController.rooms[roomName]);
           const results = clients.map((client: any)=>{
             return {
-              name: client.name,
-              score: client.score
+              name: client.username,
+              score: client.puntos
             };
           });
           results.sort((a: any,b: any)=> b.score-a.score);

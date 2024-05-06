@@ -10,11 +10,11 @@ export class PalabraPorCategoriaRepository {
     }
 
     async findByIdCategoria(idCategoria: string) {
-        return this.repository.findOneBy({ idCategoria });
+        return this.repository.findBy({ idCategoria });
     }
 
     async findByIdPalabra(idPalabra: string) {
-        return this.repository.findOneBy({idPalabra});
+        return this.repository.findBy({idPalabra});
     }
 
     async getAll() {

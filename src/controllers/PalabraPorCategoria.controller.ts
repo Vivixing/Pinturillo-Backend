@@ -13,7 +13,7 @@ export class PalabraPorCategoriaController {
         const idPalabraPorCategoria: number = Number(req.params.idPalabraPorCategoria);
 
         try {
-            const palabraPorCategoria: PalabraPorCategoriaResponse = await this.palabraPorCategoriaService.encontrarIdPalabraPorCategoria(idPalabraPorCategoria);
+            const palabraPorCategoria = await this.palabraPorCategoriaService.encontrarIdPalabraPorCategoria(idPalabraPorCategoria);
             if (palabraPorCategoria === null) {
                 res.status(404).json({ error: 'La sala de juego existe no existe' });
             }
@@ -27,7 +27,7 @@ export class PalabraPorCategoriaController {
     public getByIdCategoria = async (req: Request, res: Response) => {
         const { idCategoria } = req.params;
         try {
-            const palabraPorCategoria: PalabraPorCategoriaResponse = await this.palabraPorCategoriaService.encontrarIdCategoria(idCategoria);
+            const palabraPorCategoria: PalabraPorCategoria[] = await this.palabraPorCategoriaService.encontrarIdCategoria(idCategoria);
             if (palabraPorCategoria === null) {
                 res.status(404).json({ error: 'La categoría no existe' });
             }
@@ -41,7 +41,7 @@ export class PalabraPorCategoriaController {
     public getByIdPalabra = async (req: Request, res: Response) => {
         const { idPalabra } = req.params;
         try {
-            const palabraPorCategoria: PalabraPorCategoriaResponse = await this.palabraPorCategoriaService.encontrarIdPalabra(idPalabra);
+            const palabraPorCategoria: PalabraPorCategoria[] = await this.palabraPorCategoriaService.encontrarIdPalabra(idPalabra);
             if (palabraPorCategoria === null) {
                 res.status(404).json({ error: 'La palabra no existe' });
             }
