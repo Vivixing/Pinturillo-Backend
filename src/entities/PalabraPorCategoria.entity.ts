@@ -29,4 +29,5 @@ export class PalabraPorCategoria extends BaseEntity {
   @ManyToOne(() => Categoria, (categoria) => categoria)
   @JoinColumn({ name: "idCategoria", referencedColumnName: 'idCategoria' })
   categorias?: Categoria[];
+  length: number;
 } 
