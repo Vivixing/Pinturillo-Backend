@@ -13,9 +13,9 @@ module.exports = (expressWs) => {
     router.ws('/room/:idSalaDeJuego',async (ws, req) => {
         const idSalaDeJuego = req.params.idSalaDeJuego;
         const userName = req.headers.username;
-        let maxRondas = 1;
-
-        if(!await socketController.verifyRoom(idSalaDeJuego, ws)){
+        let maxRondas = 3;
+        const sala = await socketController.verifyRoom(idSalaDeJuego, ws);
+        if(sala === null){
             return;
         };
 
@@ -69,46 +69,45 @@ module.exports = (expressWs) => {
                     }
                 });
             }
-            else if (jsonMessage.type === 'START_GAME' && SocketController.rooms[idSalaDeJuego].size > 1) {
+            else if (jsonMessage.type === 'START_GAME' && SocketController.rooms[idSalaDeJuego].size > 1 && sala.estado === "En curso") {
                 await game();
             }     
         });
         async function game() {
             try {
-                const promises = turnosJugadores.map(async (client) => {
-                    if (client.client.ws.readyState === ws.OPEN && client.turno === 1) {
-                        adivinado.push(client.client.ws);
-                        const palabraAsignada = await socketController.asignWord(idSalaDeJuego);
-                        client.client.ws.send(`La palabra a dibujar es: ${palabraAsignada}`);
+                const palabraAsignada = await socketController.asignWord(idSalaDeJuego);
+                const clientes = Array.from(SocketController.rooms[idSalaDeJuego]);
+                const promises = clientes.map(async (client:any) => {
+                    const turno = await socketController.playerTurn(idSalaDeJuego, client.ws);
+                    if (client.ws.readyState === ws.OPEN && turno === 1) {
                         turnosJugadores = socketController.endTurn(idSalaDeJuego);
+                        adivinado.push(client.ws);
+                        client.ws.send(`La palabra a dibujar es: ${palabraAsignada}`);
                     } else {
-                        client.client.ws.send(`¡El juego ha comenzado!`);
+                        client.ws.send(`¡El juego ha comenzado!`);
                     }
                     const tiempoLimite = 90;
                     let contador = tiempoLimite;
-                    client.client.ws.send(`Tiempo restante: ${contador} segundos`);
                     return new Promise<void>((resolve) => {
                         const intervalo = setInterval(() => {
                             contador--;
                             tiempo = contador;
                             if (contador > 0 && adivinado.length < turnosJugadores.length) {
-                                client.client.ws.send(`Tiempo restante: ${contador} segundos`);
+                                client.ws.send(`Tiempo restante: ${contador} segundos`);
                             } else {
                                 clearInterval(intervalo);
-                                client.client.ws.send(`El turno de ${userName} ha terminado`);
+                                client.ws.send(`El turno de ${userName} ha terminado`);
                                 resolve();
                             }
                         }, 1000);
                     });
                 });
-        
                 await Promise.all(promises);
                 finishTurn();
             } catch (error) {
                 console.error("Error en la función game:", error);
             }
-        }
-        
+        }        
         
         async function finishTurn(){
                 maxRondas--;
@@ -117,13 +116,13 @@ module.exports = (expressWs) => {
                     return await game();
                 }
                 else {
-                    const puntajes = socketController.endGame(idSalaDeJuego);
                     SocketController.rooms[idSalaDeJuego].forEach(client => {
                         if (client.ws.readyState === ws.OPEN) {
+                            socketController.endGame(idSalaDeJuego, client.ws);
                             client.ws.send(`¡Fin del juego!`);
-                            client.ws.send(`${puntajes}`);
-                            socketController.closeRoom(idSalaDeJuego, client.ws);
+                            client.ws.send("Sala de juego finalizada");
                         }
+                        socketController.closeRoom(idSalaDeJuego);
                     });
                 };
         }

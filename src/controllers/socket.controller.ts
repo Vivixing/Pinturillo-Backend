@@ -1,5 +1,4 @@
 import { PalabraResponse } from "../dto/palabra.dto";
-import { PalabraPorCategoria } from "../entities/PalabraPorCategoria.entity";
 import { PalabraPorCategoriaRepository } from "../repositories/PalabraPorCategoria.repository";
 import { SalaDeJuegoRepository } from "../repositories/SalaDeJuego.repository";
 import { PalabraService } from "../services/PalabraService.service";
@@ -19,29 +18,28 @@ export class SocketController{
         if (sala === null){
         ws.send("Sala de juego no encontrada");
         ws.close();
-        return false;
+        return null;
         }
         sala.estado = "En curso";
-        return true;
+        await this.salaDeJuegoRepository.save(sala);
+        return sala;
       }catch(error){
         ws.send("Número de sala de juego no válido");
         ws.close();
-        return false;
+        return null;
       }
     }
 
-    async closeRoom(idSalaDeJuego, ws){
+    async closeRoom(idSalaDeJuego){
         const sala = await this.salaDeJuegoRepository.findByIdSalaDeJuego(idSalaDeJuego);
         sala.estado = "Finalizado";
-        ws.send("Sala de juego finalizada");
-        ws.close();
-        this.leaveRoom(ws, idSalaDeJuego);
+        await this.salaDeJuegoRepository.save(sala);
     }
     async joinRoom(ws, username, idSalaDeJuego) {
       if (!SocketController.rooms[idSalaDeJuego]) {
         SocketController.rooms[idSalaDeJuego] = new Set();
       }
-      SocketController.rooms[idSalaDeJuego].add({ws, username, puntos: 0, turno: 0});
+      SocketController.rooms[idSalaDeJuego].add({ws, username, puntos: 0});
       }
       
       leaveRoom(ws, idSalaDeJuego) {
@@ -66,6 +64,7 @@ export class SocketController{
   
       assignATurn(idSalaDeJuego) {
         if (SocketController.rooms[idSalaDeJuego]) {
+          this.clientWithTurn = [];
           const clients = Array.from(SocketController.rooms[idSalaDeJuego]);
           for (const client of clients) {
             const turno = Math.floor(clients.indexOf(client))+1;
@@ -93,7 +92,6 @@ export class SocketController{
           const PalabraPorCategoria = new PalabraPorCategoriaRepository();
           const palabras = await PalabraPorCategoria.findByIdCategoria(categoria);
           const randomIndex = Math.floor(Math.random() * palabras.length);
-          console.log(randomIndex);
           const randomWord = palabras[randomIndex];
           
           
@@ -107,7 +105,6 @@ export class SocketController{
 
       async points(idSalaDeJuego, puesto, ws, tiempo) {
         if (SocketController.rooms[idSalaDeJuego]) {
-          console.log(tiempo)
           for (const client of SocketController.rooms[idSalaDeJuego]) {
             if (client.ws === ws) {
               const scoreFrontPosition = (SocketController.rooms[idSalaDeJuego].size - puesto) * 10;
@@ -131,13 +128,13 @@ export class SocketController{
               client.turno--;
             }
           }
-          console.log(this.clientWithTurn);
           return this.clientWithTurn;
         }
       }
-      endGame(roomName){
-        if (SocketController.rooms[roomName]){
-          const clients = Array.from(SocketController.rooms[roomName]);
+      endGame(idSalaDeJuego, ws){
+        this.palabraAsignada = "";
+        if (SocketController.rooms[idSalaDeJuego]) {
+          const clients = Array.from(SocketController.rooms[idSalaDeJuego]);
           const results = clients.map((client: any)=>{
             return {
               name: client.username,
@@ -145,9 +142,8 @@ export class SocketController{
             };
           });
           results.sort((a: any,b: any)=> b.score-a.score);
-          console.log("results");
           results.forEach((result: any, index: number)=>{
-            console.log(`${index + 1}. ${result.name}: ${result.score}`);
+            ws.send(`${index + 1}. ${result.name}: ${result.score}`);
           });
         }
       }
