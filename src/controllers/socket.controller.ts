@@ -55,7 +55,7 @@ export class SocketController{
       
       guessWord(idSalaDeJuego, message) {
         if (SocketController.rooms[idSalaDeJuego]) {
-            if(message === this.palabraAsignada){
+            if(message.toLowerCase() === this.palabraAsignada.toLowerCase()){
               return true;
             }
             return false;

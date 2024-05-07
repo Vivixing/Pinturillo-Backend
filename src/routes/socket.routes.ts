@@ -77,12 +77,14 @@ module.exports = (expressWs) => {
             try {
                 const palabraAsignada = await socketController.asignWord(idSalaDeJuego);
                 const clientes = Array.from(SocketController.rooms[idSalaDeJuego]);
+                let usuario = "";
                 const promises = clientes.map(async (client:any) => {
                     const turno = await socketController.playerTurn(idSalaDeJuego, client.ws);
                     if (client.ws.readyState === ws.OPEN && turno === 1) {
-                        turnosJugadores = socketController.endTurn(idSalaDeJuego);
+                        usuario = client.username;
                         adivinado.push(client.ws);
                         client.ws.send(`La palabra a dibujar es: ${palabraAsignada}`);
+                        turnosJugadores = socketController.endTurn(idSalaDeJuego);
                     } else {
                         client.ws.send(`¡El juego ha comenzado!`);
                     }
@@ -96,7 +98,7 @@ module.exports = (expressWs) => {
                                 client.ws.send(`Tiempo restante: ${contador} segundos`);
                             } else {
                                 clearInterval(intervalo);
-                                client.ws.send(`El turno de ${userName} ha terminado`);
+                                client.ws.send(`El turno de ${usuario} ha terminado`);
                                 resolve();
                             }
                         }, 1000);

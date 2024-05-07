@@ -1,7 +1,7 @@
 const Joi = require("joi");
 
 const PalabraPorCategoriaCreationSchema = Joi.object({
-    idPalabras: Joi.string()
+    idPalabra: Joi.string()
         .required(),
     idCategoria: Joi.string()
         .required(),
@@ -12,7 +12,7 @@ const PalabraPorCategoriaUpdateSchema = Joi.object({
         .integer()
         .positive()
         .required(),
-    idPalabras: Joi.string()
+    idPalabra: Joi.string()
         .required(),
     idCategoria: Joi.string()
         .required()

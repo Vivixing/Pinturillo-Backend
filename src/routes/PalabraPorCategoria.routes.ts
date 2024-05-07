@@ -12,6 +12,11 @@ Router.get(
 );
 
 Router.get(
+    "/palabraPorCategoria/palabra/:idPalabra",
+    palabraPorCategoriaController.getByIdPalabra
+);
+
+Router.get(
     "/palabraPorCategoria/:idPalabraPorCategoria",
     palabraPorCategoriaController.getByIdPalabraPorCategoria
 );
