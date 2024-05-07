@@ -3,4 +3,5 @@ export class SalaDeJuegoResponse{
     nombre: string;
     idCategoria: string;
     estado: string;
+    categoria: string;
 }

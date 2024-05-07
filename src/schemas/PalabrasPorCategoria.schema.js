@@ -8,10 +8,6 @@ const PalabraPorCategoriaCreationSchema = Joi.object({
 });
 
 const PalabraPorCategoriaUpdateSchema = Joi.object({
-    idPalabraPorCategoria: Joi.number()
-        .integer()
-        .positive()
-        .required(),
     idPalabra: Joi.string()
         .required(),
     idCategoria: Joi.string()

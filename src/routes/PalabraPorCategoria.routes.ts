@@ -16,10 +16,6 @@ Router.get(
     palabraPorCategoriaController.getByIdPalabra
 );
 
-Router.get(
-    "/palabraPorCategoria/:idPalabraPorCategoria",
-    palabraPorCategoriaController.getByIdPalabraPorCategoria
-);
 
 Router.get(
     "/palabraPorCategoria",
@@ -33,7 +29,7 @@ Router.post(
 
 
 Router.delete(
-    "/palabraPorCategoria/:idPalabraPorCategoria",
+    "/palabraPorCategoria/:idPalabra/:idCategoria",
     palabraPorCategoriaController.deletePalabraPorCategoria
 )
 

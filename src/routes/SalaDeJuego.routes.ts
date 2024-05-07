@@ -39,4 +39,9 @@ Router.delete(
     salaDeJuegoController.deleteSalaDeJuego
 )
 
+Router.get(
+    "/salaDeJuego/obtenerPalabras/:idSalaDeJuego",
+    salaDeJuegoController.getPalabras
+)
+
 export { Router as SalaDeJuegoRouter };

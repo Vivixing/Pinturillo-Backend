@@ -1,5 +1,6 @@
 export class PalabraPorCategoriaResponse{
-    idPalabraPorCategoria: number;
     idPalabra: string;
     idCategoria: string;
+    palabra: string;
+    categoria: string;
 }

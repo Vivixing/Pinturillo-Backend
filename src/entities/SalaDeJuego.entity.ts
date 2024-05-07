@@ -26,4 +26,6 @@ export class SalaDeJuego extends BaseEntity {
   @Column({ nullable: false })
   estado: string;
     forEach: any;
+  
+  categoria: string;
 }

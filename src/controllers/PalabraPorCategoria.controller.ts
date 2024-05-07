@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import { PalabraPorCategoria } from "../entities/PalabraPorCategoria.entity";
-import { PalabraPorCategoriaResponse } from "../dto/PalabrasPorCategoria.dto";
-import {PalabraPorCategoriaCreationSchema, PalabraPorCategoriaUpdateSchema } from "../schemas/PalabrasPorCategoria.schema.js"
+import { PalabraPorCategoriaCreationSchema, PalabraPorCategoriaUpdateSchema } from "../schemas/PalabrasPorCategoria.schema.js"
 
 import { PalabraPorCategoriaService } from "../services/PalabraPorCategoria.service";
 
@@ -9,28 +8,15 @@ export class PalabraPorCategoriaController {
 
     private palabraPorCategoriaService: PalabraPorCategoriaService = new PalabraPorCategoriaService();
 
-    public getByIdPalabraPorCategoria = async (req: Request, res: Response) => {
-        const idPalabraPorCategoria: number = Number(req.params.idPalabraPorCategoria);
-
-        try {
-            const palabraPorCategoria = await this.palabraPorCategoriaService.encontrarIdPalabraPorCategoria(idPalabraPorCategoria);
-            if (palabraPorCategoria === null) {
-                res.status(404).json({ error: 'La sala de juego existe no existe' });
-            }
-            res.status(200).json({ palabraPorCategoria });
-
-        } catch (error) {
-            res.status(400).json({ error: error.message });
-        }
-    }
 
     public getByIdCategoria = async (req: Request, res: Response) => {
         const { idCategoria } = req.params;
         try {
-            const palabraPorCategoria: PalabraPorCategoria[] = await this.palabraPorCategoriaService.encontrarIdCategoria(idCategoria);
+            let palabraPorCategoria: PalabraPorCategoria[] = await this.palabraPorCategoriaService.encontrarIdCategoria(idCategoria);
             if (palabraPorCategoria === null) {
-                res.status(404).json({ error: 'La categoría no existe' });
+                res.status(404).json({ error: 'La categorÃa no existe' });
             }
+            palabraPorCategoria = await this.palabraPorCategoriaService.asignarPalabrayCategoria(palabraPorCategoria);
             res.status(200).json({ palabraPorCategoria });
 
         } catch (error) {
@@ -41,10 +27,11 @@ export class PalabraPorCategoriaController {
     public getByIdPalabra = async (req: Request, res: Response) => {
         const { idPalabra } = req.params;
         try {
-            const palabraPorCategoria: PalabraPorCategoria[] = await this.palabraPorCategoriaService.encontrarIdPalabra(idPalabra);
+            let palabraPorCategoria: PalabraPorCategoria[] = await this.palabraPorCategoriaService.encontrarIdPalabra(idPalabra);
             if (palabraPorCategoria === null) {
                 res.status(404).json({ error: 'La palabra no existe' });
             }
+            palabraPorCategoria = await this.palabraPorCategoriaService.asignarPalabrayCategoria(palabraPorCategoria);
             res.status(200).json({ palabraPorCategoria });
 
         } catch (error) {
@@ -54,7 +41,8 @@ export class PalabraPorCategoriaController {
 
     public getAllPalabraPorCategoria = async (req: Request, res: Response) => {
         try {
-            const palabraPorCategoria: PalabraPorCategoria[] = await this.palabraPorCategoriaService.encontrarTodos();
+            let palabraPorCategoria: PalabraPorCategoria[] = await this.palabraPorCategoriaService.encontrarTodos();
+            palabraPorCategoria = await this.palabraPorCategoriaService.asignarPalabrayCategoria(palabraPorCategoria);
             return res.status(200).json(palabraPorCategoria);
         } catch (error) {
             res.status(400).json({ error: error.message });
@@ -68,7 +56,8 @@ export class PalabraPorCategoriaController {
             return res.status(400).json(data.error.details[0].message);
         }
         try {
-            const result: PalabraPorCategoria = await this.palabraPorCategoriaService.guardarPalabraPorCategoria(body);
+            let result: PalabraPorCategoria = await this.palabraPorCategoriaService.guardarPalabraPorCategoria(body);
+            result = await this.palabraPorCategoriaService.asignarPalabrayCategoria(result);
             return res.status(200).json(result);
         } catch (error) {
             res.status(400).json({ error: error.message });
@@ -76,9 +65,10 @@ export class PalabraPorCategoriaController {
     }
 
     public deletePalabraPorCategoria = async (req: Request, res: Response) => {
-        const idPalabraPorCategoria: number = Number(req.params.idPalabraPorCategoria);
+        const { idPalabra } = req.params;
+        const { idCategoria } = req.params;
         try {
-            await this.palabraPorCategoriaService.eliminarPalabraPorCategoria(idPalabraPorCategoria);
+            await this.palabraPorCategoriaService.eliminarPalabraPorCategoria(idPalabra, idCategoria);
             res.status(200).json({ message: 'palabra por categoria eliminada' });
 
         } catch (error) {
