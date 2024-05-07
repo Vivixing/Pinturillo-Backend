@@ -11,7 +11,32 @@ export class SocketController{
     public static  rooms = {};
     public clientWithTurn = [];
     public palabraAsignada = "";
+    public salaDeJuegoRepository = new SalaDeJuegoRepository();
 
+    async verifyRoom(idSalaDeJuego, ws){
+      try{
+      const sala= await this.salaDeJuegoRepository.findByIdSalaDeJuego(idSalaDeJuego)
+        if (sala === null){
+        ws.send("Sala de juego no encontrada");
+        ws.close();
+        return false;
+        }
+        sala.estado = "En curso";
+        return true;
+      }catch(error){
+        ws.send("Número de sala de juego no válido");
+        ws.close();
+        return false;
+      }
+    }
+
+    async closeRoom(idSalaDeJuego, ws){
+        const sala = await this.salaDeJuegoRepository.findByIdSalaDeJuego(idSalaDeJuego);
+        sala.estado = "Finalizado";
+        ws.send("Sala de juego finalizada");
+        ws.close();
+        this.leaveRoom(ws, idSalaDeJuego);
+    }
     async joinRoom(ws, username, idSalaDeJuego) {
       if (!SocketController.rooms[idSalaDeJuego]) {
         SocketController.rooms[idSalaDeJuego] = new Set();
