@@ -41,7 +41,7 @@ export class SalaDeJuegoService {
     async validaciones(salaDeJuego: SalaDeJuego) {
         const categoriaExistente = await this.categoriaRepository.findByIdCategoria(salaDeJuego.idCategoria)
         if (!categoriaExistente) {
-            throw new Error("No existe una categorÃa con ese id")
+            throw new Error("No existe una categoría con ese id")
         }
         return true;
     }

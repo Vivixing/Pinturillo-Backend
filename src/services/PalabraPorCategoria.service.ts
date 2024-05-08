@@ -50,7 +50,7 @@ export class PalabraPorCategoriaService {
     async eliminarPalabraPorCategoria(idPalabra: string, idCategoria: string) {
         const palabraPorCategoriaExist = await this.palabraPorCategoriaRepository.findByIdPalabraAndIdCategoria(idPalabra, idCategoria)
         if (palabraPorCategoriaExist.length === 0) {
-            throw new Error("No existe una palabra por categoría con ese id")
+            throw new Error("No existe esa asociación")
         }
         return this.palabraPorCategoriaRepository.delete(idPalabra, idCategoria)
     }
