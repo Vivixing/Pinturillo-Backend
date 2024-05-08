@@ -20,6 +20,7 @@ export class PalabraService {
 
     async save(palabra:Palabra) {
         try {
+            palabra.texto = palabra.texto.replace(/\s+/g, ' ')
             await this.validaciones(palabra);
             return this.palabraRepository.save(palabra);
         } catch (error) {
@@ -32,9 +33,9 @@ export class PalabraService {
         if (palabraExistente) {
             throw new Error("Ya existe esa palabra")
         }
-        const regex = /^[a-zA-ZÁÉÍÓÚáéíóú]+$/;
+        const regex = /^[a-zA-Z\sÁÉÍÓÚáéíóú]+$/
         if (!regex.test(palabra.texto)) {
-            throw new Error("La palabra no puede contener números, espacios ni carácteres especiales")
+            throw new Error("La palabra no puede contener números ni carácteres especiales")
         }
         return true;
     }
@@ -45,7 +46,7 @@ export class PalabraService {
             if (!palabraExistente) {
                 throw new Error("Ninguna palabra corresponde a ese Id");
             }
-
+            palabra.texto = palabra.texto.replace(/\s+/g, ' ')
             await this.validaciones(palabra);
             return this.palabraRepository.save(palabra);
         } catch (error) {
