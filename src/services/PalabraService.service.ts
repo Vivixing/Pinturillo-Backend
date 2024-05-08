@@ -1,7 +1,6 @@
 import { Palabra } from "../entities/Palabra.entity";
 import { PalabraRepository } from "../repositories/palabra.repository";
 
-
 export class PalabraService {
 
     private palabraRepository: PalabraRepository = new PalabraRepository();
@@ -14,12 +13,13 @@ export class PalabraService {
         return this.palabraRepository.findByPalabra(texto)
     }
 
-    encontrarIdPalabra(idPalabra: string) {
+    findByIdPalabra(idPalabra: string) {
         return this.palabraRepository.findByIdPalabra(idPalabra)
     }
 
-    async save(palabra:Palabra) {
+    async save(palabra: Palabra) {
         try {
+            palabra.texto = palabra.texto.replace(/\s+/g, ' ')
             await this.validaciones(palabra);
             return this.palabraRepository.save(palabra);
         } catch (error) {
@@ -27,23 +27,24 @@ export class PalabraService {
         }
     }
 
-    async validaciones(palabra:Palabra) {
+    async validaciones(palabra: Palabra) {
         const palabraExistente = await this.palabraRepository.findByPalabra(palabra.texto)
         if (palabraExistente) {
-            throw new Error("Ya existe esa palabra")
+            throw new Error("Ya existe una palabra con ese nombre")
         }
-        const regex = /^[a-zA-ZÁÉÍÓÚáéíóú]+$/;
+        const regex = /^[a-zA-Z\sÁÉÍÓÚáéíóú]+$/
         if (!regex.test(palabra.texto)) {
-            throw new Error("La palabra no puede contener números, espacios ni carácteres especiales")
+            throw new Error("La palabra no puede contener números ni carácteres especiales")
         }
         return true;
     }
 
-    async update(palabra:Palabra) {
+    async update(palabra: Palabra) {
         try {
-            const palabraExistente = await this.palabraRepository.findByIdPalabra(palabra.idPalabra)
+            palabra.texto= palabra.texto.replace(/\s+/g, ' ')
+            const palabraExistente = await this.palabraRepository.findByIdPalabra(palabra.idPalabra);
             if (!palabraExistente) {
-                throw new Error("Ninguna palabra corresponde a ese Id");
+                throw new Error("Ninguna palabra corresponde a ese ID");
             }
 
             await this.validaciones(palabra);
@@ -55,7 +56,7 @@ export class PalabraService {
     async delete(idPalabra: string) {
         const palabraExistente = await this.palabraRepository.findByIdPalabra(idPalabra)
         if (!palabraExistente) {
-            throw new Error("Ninguna palabra corresponde a ese Id")
+            throw new Error("Ninguna palabra corresponde a ese ID")
         }
         return this.palabraRepository.delete(idPalabra)
     }

@@ -1,6 +1,7 @@
 import { PalabraResponse } from "../dto/palabra.dto";
 import { PalabraPorCategoriaRepository } from "../repositories/PalabraPorCategoria.repository";
 import { SalaDeJuegoRepository } from "../repositories/SalaDeJuego.repository";
+import { PalabraRepository } from "../repositories/palabra.repository";
 import { PalabraService } from "../services/PalabraService.service";
 
 
@@ -11,6 +12,8 @@ export class SocketController{
     public clientWithTurn = [];
     public palabraAsignada = "";
     public salaDeJuegoRepository = new SalaDeJuegoRepository();
+    public palabraPorCategoriaRepository = new PalabraPorCategoriaRepository();
+    public palabraRepository = new PalabraRepository();
 
     async verifyRoom(idSalaDeJuego, ws){
       try{
@@ -85,18 +88,16 @@ export class SocketController{
       }
       async asignWord(idSalaDeJuego) {
         if (SocketController.rooms[idSalaDeJuego]) {
-          const salaDeJuego = new SalaDeJuegoRepository();
-          const sala = await (salaDeJuego.findByIdSalaDeJuego(idSalaDeJuego));
+          const sala = await (this.salaDeJuegoRepository.findByIdSalaDeJuego(idSalaDeJuego));
           const categoria = sala.idCategoria;
           
-          const PalabraPorCategoria = new PalabraPorCategoriaRepository();
-          const palabras = await PalabraPorCategoria.findByIdCategoria(categoria);
+          const palabras = await this.palabraPorCategoriaRepository.findByIdPalabra(categoria);
           const randomIndex = Math.floor(Math.random() * palabras.length);
           const randomWord = palabras[randomIndex];
           
           
           const palabra = new PalabraService();
-          const palabraSeleccionada: PalabraResponse = await palabra.encontrarIdPalabra(randomWord.idPalabra);
+          const palabraSeleccionada: PalabraResponse = await palabra.findByIdPalabra(randomWord.idPalabra);
           this.palabraAsignada = palabraSeleccionada.texto;
           return this.palabraAsignada;
         }

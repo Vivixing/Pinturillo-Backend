@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { PalabraResponse } from "../dto/palabra.dto";
 import { Palabra } from "../entities/Palabra.entity";
 import { palabraCreationSchema,palabraUpdateSchema } from "../schemas/palabra.schema.js";
-import { PalabraService } from "../services/song.service";
+import { PalabraService } from "../services/Palabra.service";
 export class PalabraController{
     
     private palabraService: PalabraService = new PalabraService();
@@ -35,28 +35,28 @@ export class PalabraController{
     }
 
     public getAllPalabras = async (req: Request, res: Response) => {
-        const texto = <string> req.query.texto;
         try {
-            const palabras: Palabra[] = await this.palabraService.getAll(texto);
+            const palabras: Palabra[] = await this.palabraService.getAll();
             return res.status(200).json(palabras);
         } catch (error) {
             res.status(400).json({ error: error.message });
-       }
+        }
     }
 
     public savePalabra = async (req: Request, res: Response) => {
         const body = req.body;
         const data = palabraCreationSchema.validate(body);
-        if(data.error){
-            res.status(400).json({ error: data.error.details[0].message });
+        if (data.error) {
+            return res.status(400).json({ error: data.error.details[0].message });
         }
         try {
             const nuevaPalabra: Palabra = await this.palabraService.save(body);
             return res.status(200).json(nuevaPalabra);
         } catch (error) {
-            res.status(400).json({ error: error.message });
+            return res.status(400).json({ error: error.message });
         }
     }
+    
 
     public updatePalabra = async (req: Request, res: Response) => {
         const body = req.body;
@@ -65,16 +65,12 @@ export class PalabraController{
             res.status(400).json({ error: data.error.details[0].message });
         }
         try {
-            let palabraToUpdate: Palabra 
-            palabraToUpdate = {
-                ...body
-            } 
-            const result: Palabra = await this.palabraService.update(palabraToUpdate);
+            const result: Palabra = await this.palabraService.update(body);
             return res.status(200).json(result);
-        } catch (error) {
-            res.status(400).json({ error: error.message });
+            }catch (error) {
+                res.status(400).json({ error: error.message });
+            } 
         }
-    }
 
     public deletePalabra = async (req: Request, res: Response) => {
         const {id} = req.params;
