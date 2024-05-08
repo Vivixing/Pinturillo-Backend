@@ -90,14 +90,12 @@ export class SocketController{
         if (SocketController.rooms[idSalaDeJuego]) {
           const sala = await (this.salaDeJuegoRepository.findByIdSalaDeJuego(idSalaDeJuego));
           const categoria = sala.idCategoria;
-          
-          const palabras = await this.palabraPorCategoriaRepository.findByIdPalabra(categoria);
+          console.log(categoria);
+          const palabras = await this.palabraPorCategoriaRepository.findByIdCategoria(categoria);
           const randomIndex = Math.floor(Math.random() * palabras.length);
           const randomWord = palabras[randomIndex];
           
-          
-          const palabra = new PalabraService();
-          const palabraSeleccionada: PalabraResponse = await palabra.findByIdPalabra(randomWord.idPalabra);
+          const palabraSeleccionada: PalabraResponse = await this.palabraRepository.findByIdPalabra(randomWord.idPalabra);
           this.palabraAsignada = palabraSeleccionada.texto;
           return this.palabraAsignada;
         }

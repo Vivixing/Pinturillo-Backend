@@ -6,6 +6,7 @@ const router = express.Router();
 module.exports = (expressWs) => {
     const socketController = new SocketController();
     let tiempo = 0;
+    let palabraAsignada = "";
     expressWs.applyTo(router);
 
     let adivinado = [];
@@ -45,7 +46,7 @@ module.exports = (expressWs) => {
                 SocketController.rooms[idSalaDeJuego].forEach(async client => {
                     const mensajePalabra = socketController.guessWord(idSalaDeJuego,jsonMessage.data);
                     
-                    if (client.ws == ws && client.ws.readyState === ws.OPEN && mensajePalabra) {
+                    if (client.ws == ws && client.ws.readyState === ws.OPEN && mensajePalabra && adivinado.includes(client.ws) === false){
                             client.ws.send(`¡Adivinaste la palabra :D!`);
                             adivinado.push(client.ws);
                             const puntos = await socketController.points(idSalaDeJuego, adivinado.length-1, ws, tiempo);
@@ -56,7 +57,7 @@ module.exports = (expressWs) => {
                     if (client.ws !== ws && client.ws.readyState === ws.OPEN) {
                         if(mensajePalabra){
                             client.ws.send(`¡¡${userName} ha adivinado la palabra!!`);
-                        } else {
+                        } else if (mensajePalabra === false){
                         client.ws.send(`${userName}: ${jsonMessage.data}`);
                         }
                     }
@@ -75,7 +76,7 @@ module.exports = (expressWs) => {
         });
         async function game() {
             try {
-                const palabraAsignada = await socketController.asignWord(idSalaDeJuego);
+                palabraAsignada = await socketController.asignWord(idSalaDeJuego);
                 const clientes = Array.from(SocketController.rooms[idSalaDeJuego]);
                 let usuario = "";
                 const promises = clientes.map(async (client:any) => {
@@ -124,6 +125,8 @@ module.exports = (expressWs) => {
                             client.ws.send(`¡Fin del juego!`);
                             client.ws.send("Sala de juego finalizada");
                         }
+                        adivinado = [];
+                        palabraAsignada = "";
                         socketController.closeRoom(idSalaDeJuego);
                     });
                 };

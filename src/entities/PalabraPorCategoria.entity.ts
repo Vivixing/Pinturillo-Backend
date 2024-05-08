@@ -1,23 +1,20 @@
 import {
   Entity,
-  PrimaryGeneratedColumn,
-  Column,
   BaseEntity,
   ManyToOne,
   JoinColumn,
+  PrimaryColumn,
 } from "typeorm";
 import { Categoria } from "./Categoria.entity";
 import { Palabra } from "./Palabra.entity";
 
 @Entity({ name: "PalabraPorCategoria" })
 export class PalabraPorCategoria extends BaseEntity {
-  @PrimaryGeneratedColumn()
-  idPalabraPorCategoria: number;
 
-  @Column({name: 'idPalabra', nullable: false})
+  @PrimaryColumn({name: 'idPalabra', nullable: false})
   idPalabra: string;
 
-  @Column({name: 'idCategoria', nullable: false})
+  @PrimaryColumn({name: 'idCategoria', nullable: false})
   idCategoria: string;
   
 
@@ -30,4 +27,7 @@ export class PalabraPorCategoria extends BaseEntity {
   @JoinColumn({ name: "idCategoria", referencedColumnName: 'idCategoria' })
   categorias?: Categoria[];
   length: number;
+
+  palabra: string;
+  categoria: string;
 } 
