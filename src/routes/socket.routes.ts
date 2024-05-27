@@ -8,9 +8,9 @@ module.exports = (expressWs) => {
     const socketController = new SocketController();
     expressWs.applyTo(router);
 
-    router.ws('/room/:idSalaDeJuego',async (ws, req) => {
+    router.ws('/room/:idSalaDeJuego/:username',async (ws, req) => {
         const idSalaDeJuego = req.params.idSalaDeJuego;
-        const userName = req.headers.username;
+        const userName = req.params.username;
         const sala = await socketController.verifyRoom(idSalaDeJuego, ws);
         if(sala === null){
             return;
