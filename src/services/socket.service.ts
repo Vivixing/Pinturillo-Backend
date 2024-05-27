@@ -60,43 +60,50 @@ export class SocketService {
         const turnoJugador = await this.playerTurn(idSalaDeJuego, ws);
         SocketService.rooms[idSalaDeJuego].forEach(client => {
             if (client.ws == ws) {
-                client.ws.send(`Tienes el turno ${turnoJugador}`);
+                var mensaje = JSON.stringify(({ type: 'TURN', data: turnoJugador }));
+                client.ws.send(`${mensaje}`);
             }
             if (SocketService.rooms[idSalaDeJuego].size === 1) {
                 SocketService.rooms[idSalaDeJuego].forEach(client => {
                     if (client.ws.readyState === ws.OPEN) {
-                        client.ws.send(`Esperando a que se unan más jugadores`);
+                        var mensaje = JSON.stringify(({ type: 'ANNOUNCEMENT', data: 'Esperando a más jugadores...'}));
+                        client.ws.send(`${mensaje}`);
                     }
                 });
             }
             if (client.ws !== ws && client.ws.readyState === ws.OPEN) {
-                client.ws.send(`${username} se ha unido a la sala de juego`);
+                var mensaje = JSON.stringify(({ type: 'ANNOUNCEMENT', data: `${username} se ha unido a la sala de juego` }));
+                client.ws.send(`${mensaje}`);
             }
         }
         );
     }
 
-    sendMessage(message, idSalaDeJuego, ws) {
+    sendMessage(message, idSalaDeJuego, ws, username) {
         SocketService.rooms[idSalaDeJuego].forEach(async client => {
             const mensajePalabra = this.guessWord(idSalaDeJuego, message);
-
             if (client.ws == ws && client.ws.readyState === ws.OPEN && mensajePalabra && this.adivinado.includes(client.ws) === false) {
-                client.ws.send(`¡Adivinaste la palabra :D!`);
+                var mensaje = JSON.stringify(({ type: 'GUESSWORD', data: '¡Adivinaste la palabra!'}));
+                client.ws.send(`${mensaje}`);
                 this.adivinado.push(client.ws);
                 const puntos = await this.points(idSalaDeJuego, SocketService.length - 1, ws, this.tiempo);
-                client.ws.send(`Conseguiste ${puntos} puntos`);
+                var mensaje = JSON.stringify(({ type: 'POINTS', data: puntos }));
+                client.ws.send(`${mensaje}`);
             }
             if (client.ws !== ws && client.ws.readyState === ws.OPEN) {
                 if (mensajePalabra) {
-                    client.ws.send(`¡¡${client.username} ha adivinado la palabra!!`);
+                    var mensaje = JSON.stringify(({ type: 'ANNOUNCEMENT', data: `${username} ha adivinado la palabra` }));
+                    client.ws.send(`${mensaje}`);
                 } else if (mensajePalabra === false) {
-                    client.ws.send(`${client.username}: ${message}`);
+                    var mensaje = JSON.stringify(({ type: 'MESSAGE', data: `${username}: ${message}` }));
+                    client.ws.send(`${mensaje}`);
                 }
             }
             if (this.adivinado.length === SocketService.rooms[idSalaDeJuego].size) {
                 SocketService.rooms[idSalaDeJuego].forEach(client => {
                     if (client.ws.readyState === ws.OPEN) {
-                        client.ws.send(`¡Todos adivinaron la palabra!`);
+                        var mensaje = JSON.stringify(({ type: 'ANNOUNCEMENT', data: '¡Todos adivinaron la palabra!'}));
+                        client.ws.send(`${mensaje}`);
                     }
                 });
             }
@@ -189,7 +196,8 @@ export class SocketService {
             });
             results.sort((a: any, b: any) => b.score - a.score);
             results.forEach((result: any, index: number) => {
-                ws.send(`${index + 1}. ${result.name}: ${result.score}`);
+                var mensaje = JSON.stringify(({ type: 'RESULTS', data: `${index + 1}. ${result.name}: ${result.score}` }));
+                ws.send(`${mensaje}`);
             });
             return results;
         }
@@ -204,10 +212,12 @@ export class SocketService {
                 if (client.ws.readyState === ws.OPEN && turno === 1) {
                     usuario = client.username;
                     this.adivinado.push(client.ws);
-                    client.ws.send(`La palabra a dibujar es: ${this.palabraAsignada}`);
+                    var mensaje = JSON.stringify(({ type: 'WORD', data: `${this.palabraAsignada}` }));
+                    client.ws.send(`${mensaje}`);
                     this.clientWithTurn = this.endTurn(idSalaDeJuego);
                 } else {
-                    client.ws.send(`¡El juego ha comenzado!`);
+                    var mensaje = JSON.stringify(({ type: 'USER_TURN', data: `${usuario}` }));
+                    client.ws.send(`${mensaje}`);
                 }
                 const tiempoLimite = 90;
                 let contador = tiempoLimite;
@@ -216,10 +226,12 @@ export class SocketService {
                         contador--;
                         this.tiempo = contador;
                         if (contador > 0 && this.adivinado.length < this.clientWithTurn.length) {
-                            client.ws.send(`Tiempo restante: ${contador} segundos`);
+                            var mensaje = JSON.stringify(({ type: 'TIME', data: contador }));
+                            client.ws.send(`${mensaje}`);
                         } else {
                             clearInterval(intervalo);
-                            client.ws.send(`El turno de ${usuario} ha terminado`);
+                            var mensaje = JSON.stringify(({ type: 'USER_END_TURN', data: usuario }));
+                            client.ws.send(`${mensaje}`);
                             resolve();
                         }
                     }, 1000);
@@ -242,8 +254,8 @@ export class SocketService {
             SocketService.rooms[idSalaDeJuego].forEach(client => {
                 if (client.ws.readyState === ws.OPEN) {
                     this.endGame(idSalaDeJuego, client.ws);
-                    client.ws.send(`¡Fin del juego!`);
-                    client.ws.send("Sala de juego finalizada");
+                    var mensaje = JSON.stringify(({ type: 'END_GAME', data: '¡Fin del juego!' }));
+                    client.ws.send(`${mensaje}`);
                 }
                 this.adivinado = [];
                 this.palabraAsignada = "";
@@ -255,17 +267,17 @@ export class SocketService {
     async leave(ws, idSalaDeJuego, userName) {
         try {
             SocketService.rooms[idSalaDeJuego] = await this.leaveRoom(ws, idSalaDeJuego);
-            console.log(this.clientWithTurn);
-            console.log(SocketService.rooms[idSalaDeJuego]);
             if (SocketService.rooms[idSalaDeJuego].size === 0) {
                 delete SocketService.rooms[idSalaDeJuego];
             }
             this.clientWithTurn = this.assignATurn(idSalaDeJuego);
             SocketService.rooms[idSalaDeJuego].forEach(async client => {
                 if (client.ws.readyState === ws.OPEN) {
-                    client.ws.send(`${userName} ha abandonado a la sala de juego`);
+                    var mensaje = JSON.stringify(({ type: 'ANNOUNCEMENT', data: `${userName} ha abandonado la sala de juego` }));
+                    client.ws.send(`${mensaje}`);
                     const turnoNuevo = await this.playerTurn(idSalaDeJuego, client.ws);
-                    client.ws.send(`Tienes el turno ${turnoNuevo}`);
+                    var mensaje = JSON.stringify(({ type: 'TURN', data: turnoNuevo }));
+                    client.ws.send(`${mensaje}`);
                 }
             }
             );

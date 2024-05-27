@@ -32,8 +32,8 @@ export class SocketController {
   async leaveRoom(ws, idSalaDeJuego) {
     this.socketService.leaveRoom(ws, idSalaDeJuego)
   }
-  sendMessage(message, idSalaDeJuego, ws) {
-    this.socketService.sendMessage(message, idSalaDeJuego, ws)
+  sendMessage(message, idSalaDeJuego, ws, username) {
+    this.socketService.sendMessage(message, idSalaDeJuego, ws, username)
   }
   guessWord(idSalaDeJuego, message) {
     if (this.socketService.guessWord(idSalaDeJuego, message)) {
