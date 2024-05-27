@@ -1,4 +1,5 @@
 import { SocketController } from "../controllers/socket.controller";
+import { SocketService } from "../services/socket.service";
 
 const express = require('express');
 const router = express.Router();
@@ -15,24 +16,22 @@ module.exports = (expressWs) => {
             return;
         };
         
-        await socketController.joinRoom( ws, userName, idSalaDeJuego);
-        let turnosJugadores = socketController.assignATurn(idSalaDeJuego);
-        
+        await socketController.joinRoom( ws, userName, idSalaDeJuego);    
         ws.on('message', async function (msg) {
             const jsonMessage = JSON.parse(msg);
             if (jsonMessage.type === 'SEND_MESSAGE') {
                 socketController.sendMessage(jsonMessage.data, idSalaDeJuego, ws)
             }
-            else if (jsonMessage.type === 'START_GAME' && SocketController.rooms[idSalaDeJuego].size > 1 && sala.estado === "En curso") {
+            else if (jsonMessage.type === 'START_GAME' && SocketService.rooms[idSalaDeJuego].size > 1 && sala.estado === "En curso") {
                 await socketController.game(idSalaDeJuego,ws);
             }     
         });
 
-        ws.on('close', function () {
-            
-        });
-    }
-    );
+        ws.on('close', function() {
+            socketController.leave(ws, idSalaDeJuego, userName);
+    })
+    });
+    
 
     return router;
 };
