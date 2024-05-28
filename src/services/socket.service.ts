@@ -9,6 +9,7 @@ export class SocketService {
     public tiempo = 0;
     public palabraAsignada = "";
     public maxRondas = 1;
+    public juegoIniciado= false;
     public socketRepository = new SocketRepository
 
     async verifyRoom(idSalaDeJuego) {
@@ -217,7 +218,9 @@ export class SocketService {
     }
     async game(idSalaDeJuego, ws) {
         try {
-            this.palabraAsignada = await this.asignWord(idSalaDeJuego);
+            if (this.juegoIniciado === false) {
+                this.juegoIniciado = true;
+                this.palabraAsignada = await this.asignWord(idSalaDeJuego);
             const clientes = Array.from(SocketService.rooms[idSalaDeJuego]);
             let usuario = "";
             const promises = clientes.map(async (client: any) => {
@@ -252,6 +255,8 @@ export class SocketService {
             });
             await Promise.all(promises);
             this.finishTurn(idSalaDeJuego, ws);
+            }
+            
         } catch (error) {
             console.error("Error en la función game:", error);
         }
