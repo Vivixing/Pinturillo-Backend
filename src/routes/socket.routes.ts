@@ -11,13 +11,13 @@ module.exports = (expressWs) => {
     router.ws('/room/:idSalaDeJuego/:username',async (ws, req) => {
         const idSalaDeJuego = req.params.idSalaDeJuego;
         const userName = req.params.username;
-        console.log('Conexión establecida con el usuario: ' + userName);
         const sala = await socketController.verifyRoom(idSalaDeJuego, ws);
         if(sala === null){
             return;
         };
         
-        await socketController.joinRoom( ws, userName, idSalaDeJuego);    
+        await socketController.joinRoom( ws, userName, idSalaDeJuego);
+        socketController.obtainPlayers(idSalaDeJuego, ws);    
         ws.on('message', async function (msg) {
             const jsonMessage = JSON.parse(msg);
             if (jsonMessage.type === 'SEND_MESSAGE') {

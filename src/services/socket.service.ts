@@ -54,7 +54,14 @@ export class SocketService {
             return SocketService.rooms[idSalaDeJuego]
         }
     }
-
+    obtainPlayers(idSalaDeJuego, ws) {
+        if (SocketService.rooms[idSalaDeJuego]) {
+            const players = Array.from(SocketService.rooms[idSalaDeJuego]).map(({ username, puntos }: any) => ({ username, puntos }));
+            var mensaje = JSON.stringify(({ type: 'PLAYERS', data: players }));
+            ws.send(`${mensaje}`);
+            return players;
+        }
+    }
     async welcomeRoom(idSalaDeJuego, ws, username) {
         const clientWithTurn = this.assignATurn(idSalaDeJuego)
         const turnoJugador = await this.playerTurn(idSalaDeJuego, ws);
@@ -72,7 +79,8 @@ export class SocketService {
                 });
             }
             if (client.ws !== ws && client.ws.readyState === ws.OPEN) {
-                var mensaje = JSON.stringify(({ type: 'ANNOUNCEMENT', data: `${username} se ha unido a la sala de juego` }));
+                var players =  this.obtainPlayers(idSalaDeJuego, client.ws);
+                var mensaje = JSON.stringify(({ type: 'JOIN_ROOM', data: `${username}`}));
                 client.ws.send(`${mensaje}`);
             }
         }
@@ -89,6 +97,11 @@ export class SocketService {
                 const puntos = await this.points(idSalaDeJuego, SocketService.length - 1, ws, this.tiempo);
                 var mensaje = JSON.stringify(({ type: 'POINTS', data: puntos }));
                 client.ws.send(`${mensaje}`);
+                SocketService.rooms[idSalaDeJuego].forEach(client => {
+                    if (client.ws.readyState === ws.OPEN) {
+                        this.obtainPlayers(idSalaDeJuego, client.ws);
+                    }
+                });
             }
             if (client.ws !== ws && client.ws.readyState === ws.OPEN) {
                 if (mensajePalabra) {
@@ -273,7 +286,7 @@ export class SocketService {
             this.clientWithTurn = this.assignATurn(idSalaDeJuego);
             SocketService.rooms[idSalaDeJuego].forEach(async client => {
                 if (client.ws.readyState === ws.OPEN) {
-                    var mensaje = JSON.stringify(({ type: 'ANNOUNCEMENT', data: `${userName} ha abandonado la sala de juego` }));
+                    var mensaje = JSON.stringify(({ type: 'LEAVE_ROOM', data: `${userName}` }));
                     client.ws.send(`${mensaje}`);
                     const turnoNuevo = await this.playerTurn(idSalaDeJuego, client.ws);
                     var mensaje = JSON.stringify(({ type: 'TURN', data: turnoNuevo }));

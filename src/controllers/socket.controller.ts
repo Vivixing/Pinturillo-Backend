@@ -41,7 +41,9 @@ export class SocketController {
     }
     return false
   }
-
+  obtainPlayers(idSalaDeJuego, ws) {
+    return this.socketService.obtainPlayers(idSalaDeJuego, ws)
+  }
   assignATurn(idSalaDeJuego) {
     this.turnosJugadores = this.socketService.assignATurn(idSalaDeJuego)
     return this.turnosJugadores
