@@ -198,10 +198,8 @@ export class SocketService {
             return this.clientWithTurn;
         }
     }
-    endGame(idSalaDeJuego, ws) {
-        this.palabraAsignada = "";
-        if (SocketService.rooms[idSalaDeJuego]) {
-            const clients = Array.from(SocketService.rooms[idSalaDeJuego]);
+    results(idSalaDeJuego) {
+        const clients = Array.from(SocketService.rooms[idSalaDeJuego]);
             const results = clients.map((client: any) => {
                 return {
                     name: client.username,
@@ -209,11 +207,16 @@ export class SocketService {
                 };
             });
             results.sort((a: any, b: any) => b.score - a.score);
+            return results;
+    }
+    endGame(idSalaDeJuego, ws) {
+        this.palabraAsignada = "";
+        if (SocketService.rooms[idSalaDeJuego]) {
+            const results = this.results(idSalaDeJuego);
             results.forEach((result: any, index: number) => {
                 var mensaje = JSON.stringify(({ type: 'RESULTS', data: `${index + 1}. ${result.name}: ${result.score}` }));
                 ws.send(`${mensaje}`);
             });
-            return results;
         }
     }
     async game(idSalaDeJuego, ws) {
@@ -226,6 +229,7 @@ export class SocketService {
             const promises = clientes.map(async (client: any) => {
                 const turno = await this.playerTurn(idSalaDeJuego, client.ws);
                 if (client.ws.readyState === ws.OPEN && turno === 1) {
+                    var wsUsuario = client.ws; 
                     usuario = client.username;
                     this.adivinado.push(client.ws);
                     var mensaje = JSON.stringify(({ type: 'WORD', data: `${this.palabraAsignada}` }));
@@ -238,7 +242,7 @@ export class SocketService {
                 const tiempoLimite = 90;
                 let contador = tiempoLimite;
                 return new Promise<void>((resolve) => {
-                    const intervalo = setInterval(() => {
+                    const intervalo = setInterval(async () => {
                         contador--;
                         this.tiempo = contador;
                         if (contador > 0 && this.adivinado.length < this.clientWithTurn.length) {
@@ -248,10 +252,19 @@ export class SocketService {
                             clearInterval(intervalo);
                             var mensaje = JSON.stringify(({ type: 'USER_END_TURN', data: usuario }));
                             client.ws.send(`${mensaje}`);
+                            var puntosUser =await this.points(idSalaDeJuego, (SocketService.rooms[idSalaDeJuego].size +1) - this.adivinado.length,wsUsuario, 90);
+                            var mensaje = JSON.stringify(({ type: 'POINTS', data: puntosUser }));
+                            client.ws.send(`${mensaje}`);
+                            SocketService.rooms[idSalaDeJuego].forEach(client => {
+                                if (client.ws.readyState === ws.OPEN) {
+                                    this.obtainPlayers(idSalaDeJuego, client.ws);
+                                }
+                            });
                             resolve();
                         }
                     }, 1000);
-                });
+                }
+            );
             });
             await Promise.all(promises);
             this.finishTurn(idSalaDeJuego, ws);

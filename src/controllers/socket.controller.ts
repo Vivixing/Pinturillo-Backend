@@ -5,6 +5,7 @@ const WebSocket = require('ws');
 export class SocketController {
   public socketService = new SocketService
   public turnosJugadores = []
+
   async verifyRoom(idSalaDeJuego, ws) {
     try {
       const sala = await this.socketService.verifyRoom(idSalaDeJuego)
@@ -16,7 +17,15 @@ export class SocketController {
       return null;
     }
   }
-
+  async message(ws, msg, idSalaDeJuego, userName, sala) {
+    const jsonMessage = JSON.parse(msg);
+            if (jsonMessage.type === 'SEND_MESSAGE') {
+                this.sendMessage(jsonMessage.data, idSalaDeJuego, ws, userName);
+            }
+            else if (jsonMessage.type === 'START_GAME' && SocketService.rooms[idSalaDeJuego].size > 1 && sala.estado === "En curso") {
+                await this.game(idSalaDeJuego,ws);
+            }
+  }
   async closeRoom(idSalaDeJuego) {
     return await this.socketService.closeRoom(idSalaDeJuego)
   }

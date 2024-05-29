@@ -1,5 +1,4 @@
 import { SocketController } from "../controllers/socket.controller";
-import { SocketService } from "../services/socket.service";
 
 const express = require('express');
 const router = express.Router();
@@ -19,13 +18,7 @@ module.exports = (expressWs) => {
         await socketController.joinRoom( ws, userName, idSalaDeJuego);
         socketController.obtainPlayers(idSalaDeJuego, ws);    
         ws.on('message', async function (msg) {
-            const jsonMessage = JSON.parse(msg);
-            if (jsonMessage.type === 'SEND_MESSAGE') {
-                socketController.sendMessage(jsonMessage.data, idSalaDeJuego, ws, userName);
-            }
-            else if (jsonMessage.type === 'START_GAME' && SocketService.rooms[idSalaDeJuego].size > 1 && sala.estado === "En curso") {
-                await socketController.game(idSalaDeJuego,ws);
-            }     
+                socketController.message(ws, msg, idSalaDeJuego, userName, sala);
         });
 
         ws.on('close', function() {
