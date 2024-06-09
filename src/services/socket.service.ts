@@ -230,6 +230,20 @@ export class SocketService {
             ws.send(`${mensaje}`);
         }
     }
+
+    gameStart(idSalaDeJuego, ws){
+        if(this.juegoIniciado === false){
+            this.juegoIniciado = true;
+        }
+        else{
+            SocketService.rooms[idSalaDeJuego].forEach(client => {
+                if (client.ws.readyState === ws.OPEN) {
+                    var mensaje = JSON.stringify(({ type: 'GAME_STARTED', data: this.juegoIniciado}));
+                    client.ws.send(`${mensaje}`);
+                }
+            });
+    }
+}
     async game(idSalaDeJuego, ws) {
         try {
             this.palabraAsignada = await this.asignWord(idSalaDeJuego);
