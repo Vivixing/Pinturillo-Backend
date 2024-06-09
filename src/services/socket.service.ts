@@ -83,6 +83,7 @@ export class SocketService {
                 var players =  this.obtainPlayers(idSalaDeJuego, client.ws);
                 var mensaje = JSON.stringify(({ type: 'JOIN_ROOM', data: `${username}`}));
                 client.ws.send(`${mensaje}`);
+                this.rondas(idSalaDeJuego, client.ws);
             }
         }
         );
@@ -219,11 +220,19 @@ export class SocketService {
             });
         }
     }
+
+    rondas(idSalaDeJuego, ws) {
+        if(this.juegoIniciado === false){
+            this.maxRondas = SocketService.rooms[idSalaDeJuego].size;
+        }     
+        if (SocketService.rooms[idSalaDeJuego]) {
+            var mensaje = JSON.stringify(({ type: 'MAX_ROUNDS', data: this.maxRondas }));
+            ws.send(`${mensaje}`);
+        }
+    }
     async game(idSalaDeJuego, ws) {
         try {
-            if (this.juegoIniciado === false) {
-                this.juegoIniciado = true;
-                this.palabraAsignada = await this.asignWord(idSalaDeJuego);
+            this.palabraAsignada = await this.asignWord(idSalaDeJuego);
             const clientes = Array.from(SocketService.rooms[idSalaDeJuego]);
             let usuario = "";
             const promises = clientes.map(async (client: any) => {
@@ -268,7 +277,6 @@ export class SocketService {
             });
             await Promise.all(promises);
             this.finishTurn(idSalaDeJuego, ws);
-            }
             
         } catch (error) {
             console.error("Error en la función game:", error);
@@ -279,6 +287,8 @@ export class SocketService {
         this.maxRondas--;
         if (this.maxRondas > 0) {
             this.adivinado = [];
+            var mensaje = JSON.stringify(({ type: 'ROUND', data: this.maxRondas }));
+            ws.send(`${mensaje}`);
             return await this.game(idSalaDeJuego, ws);
         }
         else {
