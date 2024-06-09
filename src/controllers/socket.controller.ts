@@ -23,7 +23,7 @@ export class SocketController {
                 this.sendMessage(jsonMessage.data, idSalaDeJuego, ws, userName);
             }
             else if (jsonMessage.type === 'START_GAME' && SocketService.rooms[idSalaDeJuego].size > 1 && sala.estado === "En curso") {
-                await this.game(idSalaDeJuego,ws);
+                await this.socketService.gameStart(idSalaDeJuego,ws);
             }
   }
   async closeRoom(idSalaDeJuego) {

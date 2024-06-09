@@ -70,6 +70,8 @@ export class SocketService {
             if (client.ws == ws) {
                 var mensaje = JSON.stringify(({ type: 'TURN', data: turnoJugador }));
                 client.ws.send(`${mensaje}`);
+                var mensaje = JSON.stringify(({ type: 'GAME_STARTED', data:this.juegoIniciado }));
+                client.ws.send(`${mensaje}`);
             }
             if (SocketService.rooms[idSalaDeJuego].size === 1) {
                 SocketService.rooms[idSalaDeJuego].forEach(client => {
@@ -231,29 +233,31 @@ export class SocketService {
         }
     }
 
-    gameStart(idSalaDeJuego, ws){
-        if(this.juegoIniciado === false){
-            this.juegoIniciado = true;
+    async gameStart(idSalaDeJuego, ws){
+            if(this.juegoIniciado === false){
+                this.juegoIniciado = true;
+                SocketService.rooms[idSalaDeJuego].forEach(client => {
+                    if (client.ws.readyState === ws.OPEN) {
+                        var mensaje = JSON.stringify(({ type: 'GAME_STARTED', data: this.juegoIniciado}));
+                        client.ws.send(`${mensaje}`);
+                    }
+                });
+                await this.game(idSalaDeJuego, ws);
+            }
         }
-        else{
-            SocketService.rooms[idSalaDeJuego].forEach(client => {
-                if (client.ws.readyState === ws.OPEN) {
-                    var mensaje = JSON.stringify(({ type: 'GAME_STARTED', data: this.juegoIniciado}));
-                    client.ws.send(`${mensaje}`);
-                }
-            });
-    }
-}
     async game(idSalaDeJuego, ws) {
         try {
             this.palabraAsignada = await this.asignWord(idSalaDeJuego);
             const clientes = Array.from(SocketService.rooms[idSalaDeJuego]);
-            let usuario = "";
+            for (const client of this.clientWithTurn) {
+                if (client.turno === 1) {
+                    var usuario = client.client.username;
+                }
+            }
             const promises = clientes.map(async (client: any) => {
                 const turno = await this.playerTurn(idSalaDeJuego, client.ws);
                 if (client.ws.readyState === ws.OPEN && turno === 1) {
                     var wsUsuario = client.ws; 
-                    usuario = client.username;
                     this.adivinado.push(client.ws);
                     var mensaje = JSON.stringify(({ type: 'WORD', data: `${this.palabraAsignada}` }));
                     client.ws.send(`${mensaje}`);
