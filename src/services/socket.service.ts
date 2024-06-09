@@ -9,6 +9,7 @@ export class SocketService {
     public tiempo = 0;
     public palabraAsignada = "";
     public maxRondas = 1;
+    public rondaActual = 0; 
     public juegoIniciado= false;
     public socketRepository = new SocketRepository
 
@@ -303,10 +304,11 @@ export class SocketService {
 
     async finishTurn(idSalaDeJuego, ws) {
         this.maxRondas--;
+        this.rondaActual++;
+        var mensaje = JSON.stringify(({ type: 'ROUND', data: this.rondaActual }));
+        ws.send(`${mensaje}`);
         if (this.maxRondas > 0) {
             this.adivinado = [];
-            var mensaje = JSON.stringify(({ type: 'ROUND', data: this.maxRondas }));
-            ws.send(`${mensaje}`);
             return await this.game(idSalaDeJuego, ws);
         }
         else {
