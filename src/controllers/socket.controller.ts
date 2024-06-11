@@ -17,10 +17,10 @@ export class SocketController {
       return null;
     }
   }
-  async message(ws, msg, idSalaDeJuego, userName, sala) {
+  async message(ws, msg, idSalaDeJuego, userName, sala, avatar) {
     const jsonMessage = JSON.parse(msg);
             if (jsonMessage.type === 'SEND_MESSAGE') {
-                this.sendMessage(jsonMessage.data, idSalaDeJuego, ws, userName);
+                this.sendMessage(jsonMessage.data, idSalaDeJuego, ws, userName, avatar);
             }
             else if (jsonMessage.type === 'START_GAME' && SocketService.rooms[idSalaDeJuego].size > 1 && sala.estado === "En curso") {
                 await this.socketService.gameStart(idSalaDeJuego,ws);
@@ -29,20 +29,20 @@ export class SocketController {
   async closeRoom(idSalaDeJuego) {
     return await this.socketService.closeRoom(idSalaDeJuego)
   }
-  async joinRoom(ws, username, idSalaDeJuego) {
-    await this.socketService.joinRoom(ws, username, idSalaDeJuego)
-    this.welcomeRoom(idSalaDeJuego, ws, username)
+  async joinRoom(ws, username, idSalaDeJuego, avatar) {
+    await this.socketService.joinRoom(ws, username, idSalaDeJuego, avatar)
+    this.welcomeRoom(idSalaDeJuego, ws, username, avatar)
   }
 
-  async welcomeRoom(idSalaDeJuego, ws, username) {
-    this.socketService.welcomeRoom(idSalaDeJuego, ws, username)
+  async welcomeRoom(idSalaDeJuego, ws, username, avatar) {
+    this.socketService.welcomeRoom(idSalaDeJuego, ws, username, avatar)
   }
 
   async leaveRoom(ws, idSalaDeJuego) {
     this.socketService.leaveRoom(ws, idSalaDeJuego)
   }
-  sendMessage(message, idSalaDeJuego, ws, username) {
-    this.socketService.sendMessage(message, idSalaDeJuego, ws, username)
+  sendMessage(message, idSalaDeJuego, ws, username, avatar) {
+    this.socketService.sendMessage(message, idSalaDeJuego, ws, username, avatar)
   }
   guessWord(idSalaDeJuego, message) {
     if (this.socketService.guessWord(idSalaDeJuego, message)) {

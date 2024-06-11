@@ -37,11 +37,11 @@ export class SocketService {
         }
 
     }
-    async joinRoom(ws, username, idSalaDeJuego) {
+    async joinRoom(ws, username, idSalaDeJuego,avatar) {
         if (!SocketService.rooms[idSalaDeJuego]) {
             SocketService.rooms[idSalaDeJuego] = new Set();
         }
-        SocketService.rooms[idSalaDeJuego].add({ ws, username, puntos: 0 });
+        SocketService.rooms[idSalaDeJuego].add({ ws, username, puntos: 0, avatar});
         return SocketService.rooms[idSalaDeJuego];
     }
 
@@ -58,13 +58,13 @@ export class SocketService {
     }
     obtainPlayers(idSalaDeJuego, ws) {
         if (SocketService.rooms[idSalaDeJuego]) {
-            const players = Array.from(SocketService.rooms[idSalaDeJuego]).map(({ username, puntos }: any) => ({ username, puntos }));
+            const players = Array.from(SocketService.rooms[idSalaDeJuego]).map(({ username, puntos, avatar }: any) => ({ username, puntos, avatar }));
             var mensaje = JSON.stringify(({ type: 'PLAYERS', data: players }));
             ws.send(`${mensaje}`);
             return players;
         }
     }
-    async welcomeRoom(idSalaDeJuego, ws, username) {
+    async welcomeRoom(idSalaDeJuego, ws, username, avatar) {
         const clientWithTurn = this.assignATurn(idSalaDeJuego)
         const turnoJugador = await this.playerTurn(idSalaDeJuego, ws);
         SocketService.rooms[idSalaDeJuego].forEach(client => {
@@ -84,7 +84,7 @@ export class SocketService {
             }
             if (client.ws !== ws && client.ws.readyState === ws.OPEN) {
                 var players =  this.obtainPlayers(idSalaDeJuego, client.ws);
-                var mensaje = JSON.stringify(({ type: 'JOIN_ROOM', data: `${username}`}));
+                var mensaje = JSON.stringify(({ type: 'JOIN_ROOM', data: `${username},${avatar}` }));
                 client.ws.send(`${mensaje}`);
                 this.rondas(idSalaDeJuego, client.ws);
             }
@@ -92,7 +92,7 @@ export class SocketService {
         );
     }
 
-    sendMessage(message, idSalaDeJuego, ws, username) {
+    sendMessage(message, idSalaDeJuego, ws, username, avatar) {
         SocketService.rooms[idSalaDeJuego].forEach(async client => {
             const mensajePalabra = this.guessWord(idSalaDeJuego, message);
             if (client.ws == ws && client.ws.readyState === ws.OPEN && mensajePalabra && this.adivinado.includes(client.ws) === false) {
@@ -113,7 +113,7 @@ export class SocketService {
                     var mensaje = JSON.stringify(({ type: 'ANNOUNCEMENT', data: `${username} ha adivinado la palabra` }));
                     client.ws.send(`${mensaje}`);
                 } else if (mensajePalabra === false) {
-                    var mensaje = JSON.stringify(({ type: 'MESSAGE', data: `${username}: ${message}` }));
+                    var mensaje = JSON.stringify(({ type: 'MESSAGE', data: `${avatar}:${username}:${message}` }));
                     client.ws.send(`${mensaje}`);
                 }
             }
