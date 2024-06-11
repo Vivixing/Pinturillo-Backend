@@ -5,7 +5,7 @@ const Router = express.Router();
 const salaDeJuegoController = new SalaDeJuegoController();
 
 Router.get(
-    "/salaDeJuego/:nombre",
+    "/salaDeJuego/nombre/:nombre",
     salaDeJuegoController.getByNombre
 );
 

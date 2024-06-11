@@ -20,7 +20,7 @@ export class SalaDeJuegoController {
                 salaDeJuego,
             });
         } catch (error) {
-            res.status(400).json({ error: error.message });
+            return res.status(400).json({ error: error.message });
         }
     };
 
@@ -30,13 +30,13 @@ export class SalaDeJuegoController {
         try {
             let salaDeJuego: SalaDeJuegoResponse = await this.salaDeJuegoService.encontrarIdSalaDeJuego(idSalaDeJuego);
             if (salaDeJuego === null) {
-                res.status(404).json({ error: 'La sala de juego existe no existe' });
+                return res.status(404).json({ error: 'La sala de juego no existe' });
             }
             salaDeJuego = await this.salaDeJuegoService.asignarCategoria(salaDeJuego);
-            res.status(200).json({ salaDeJuego });
+            return res.status(200).json({ salaDeJuego });
 
         } catch (error) {
-            res.status(400).json({ error: error.message });
+            return res.status(400).json({ error: error.message });
         }
     }
 
@@ -45,13 +45,13 @@ export class SalaDeJuegoController {
         try {
             let salaDeJuego: SalaDeJuegoResponse = await this.salaDeJuegoService.encontrarIdCategoria(idCategoria);
             if (salaDeJuego === null) {
-                res.status(404).json({ error: 'La categorÃ­a no existe' });
+                return res.status(404).json({ error: 'La categorÃ­a no existe' });
             }
             salaDeJuego = await this.salaDeJuegoService.asignarCategoria(salaDeJuego);
-            res.status(200).json({ salaDeJuego });
+            return res.status(200).json({ salaDeJuego });
 
         } catch (error) {
-            res.status(400).json({ error: error.message });
+            return res.status(400).json({ error: error.message });
         }
     }
 
@@ -61,7 +61,7 @@ export class SalaDeJuegoController {
             salasDeJuego = await this.salaDeJuegoService.asignarCategoria(salasDeJuego);
             return res.status(200).json(salasDeJuego);
         } catch (error) {
-            res.status(400).json({ error: error.message });
+            return res.status(400).json({ error: error.message });
         }
     }
 
@@ -99,10 +99,10 @@ export class SalaDeJuegoController {
         const idSalaDeJuego: number = Number(req.params.idSalaDeJuego);
         try {
             await this.salaDeJuegoService.eliminarSalaDeJuego(idSalaDeJuego);
-            res.status(200).json({ message: 'sala de juego eliminada' });
+            return res.status(200).json({ message: 'sala de juego eliminada' });
 
         } catch (error) {
-            res.status(400).json({ error: error.message });
+            return res.status(400).json({ error: error.message });
         }
     }
 
@@ -112,7 +112,7 @@ export class SalaDeJuegoController {
             const palabras: PalabraPorCategoria[] = await this.salaDeJuegoService.palabrasSalaDeJuego(idSalaDeJuego);
             return res.status(200).json(palabras);
         } catch (error) {
-            res.status(400).json({ error: error.message });
+            return res.status(400).json({ error: error.message });
         }
     }
 

@@ -7,7 +7,10 @@ const SalaDeJuegoCreationSchema = Joi.object({
     idCategoria: Joi.string()
         .required(),
     estado: Joi.string()
-        .valid("Sin iniciar", "En curso", "Finalizado")
+        .valid("Sin iniciar", "En curso", "Finalizado"),
+    categoria: Joi.string()
+        .min(3)
+        .max(225)
     
     
 });
