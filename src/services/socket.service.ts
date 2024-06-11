@@ -19,8 +19,6 @@ export class SocketService {
             if (sala === null) {
                 throw new Error("No se ha encontrado la sala de juego")
             }
-            sala.estado = "En curso";
-            await this.socketRepository.updateRoom(sala)
             return sala;
         } catch (error) {
             throw new Error("Número de sala de juego no válido")
@@ -237,6 +235,9 @@ export class SocketService {
     async gameStart(idSalaDeJuego, ws){
             if(this.juegoIniciado === false){
                 this.juegoIniciado = true;
+                let sala = await this.verifyRoom(idSalaDeJuego);
+                sala.estado = "En curso";
+                await this.socketRepository.updateRoom(sala)
                 SocketService.rooms[idSalaDeJuego].forEach(client => {
                     if (client.ws.readyState === ws.OPEN) {
                         var mensaje = JSON.stringify(({ type: 'GAME_STARTED', data: this.juegoIniciado}));
