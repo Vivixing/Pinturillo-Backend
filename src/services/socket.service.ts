@@ -231,7 +231,27 @@ export class SocketService {
             ws.send(`${mensaje}`);
         }
     }
+    sendDraw(idSalaDeJuego, ws, data) {
+            if (SocketService.rooms[idSalaDeJuego]) {
+                SocketService.rooms[idSalaDeJuego].forEach(client => {
+                    if (client.ws !== ws && client.ws.readyState === ws.OPEN) {
+                        var mensaje = JSON.stringify(({ type: 'DRAW', data: data }));
+                        client.ws.send(`${mensaje}`);
+                    }
+                });
+            }
+    }
 
+    sendClear(idSalaDeJuego, ws) {
+        if (SocketService.rooms[idSalaDeJuego]) {
+            SocketService.rooms[idSalaDeJuego].forEach(client => {
+                if (client.ws !== ws && client.ws.readyState === ws.OPEN) {
+                    var mensaje = JSON.stringify(({ type: 'CLEAR' }));
+                    client.ws.send(`${mensaje}`);
+                }
+            });
+        }
+    }
     async gameStart(idSalaDeJuego, ws){
             if(this.juegoIniciado === false){
                 this.juegoIniciado = true;
@@ -310,6 +330,12 @@ export class SocketService {
         ws.send(`${mensaje}`);
         if (this.maxRondas > 0) {
             this.adivinado = [];
+            SocketService.rooms[idSalaDeJuego].forEach(client => {
+                var playerTurn = this.playerTurn(idSalaDeJuego, client.ws);
+                var mensaje = JSON.stringify(({ type: 'TURN', data: playerTurn }));
+                client.ws.send(`${mensaje}`);
+            }
+            );
             return await this.game(idSalaDeJuego, ws);
         }
         else {

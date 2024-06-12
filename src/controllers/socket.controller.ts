@@ -1,3 +1,4 @@
+import e = require("express");
 import { SocketService } from "../services/socket.service";
 
 const WebSocket = require('ws');
@@ -24,6 +25,12 @@ export class SocketController {
             }
             else if (jsonMessage.type === 'START_GAME' && SocketService.rooms[idSalaDeJuego].size > 1 && sala.estado !== "Finalizado") {
                 await this.socketService.gameStart(idSalaDeJuego,ws);
+            }
+            else if (jsonMessage.type === 'DRAW') {
+                this.socketService.sendDraw(idSalaDeJuego, ws, jsonMessage.data);
+            }
+            else if(jsonMessage.type === 'CLEAR'){
+                this.socketService.sendClear(idSalaDeJuego, ws);
             }
   }
   async closeRoom(idSalaDeJuego) {
